@@ -349,6 +349,8 @@ const GanttManager = () => {
   const [projectTitleDraft, setProjectTitleDraft] = useState(projectTitle);
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [containerWidth, setContainerWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
+  const [dragOverTaskId, setDragOverTaskId] = useState(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -620,7 +622,20 @@ const GanttManager = () => {
     const remainingMaterials = (task.materials?.length || 0) - maxMaterialsToShow;
 
     return (
-      <div key={`timeline-task-${task.id}`} className="space-y-2 group">
+      <div
+        key={`timeline-task-${task.id}`}
+        className={`space-y-2 group cursor-move transition-all ${
+          draggedTaskId === task.id ? 'opacity-50' : ''
+        } ${
+          dragOverTaskId === task.id ? 'border-2 border-blue-500 rounded-lg' : ''
+        }`}
+        draggable
+        onDragStart={(e) => handleDragStart(e, task.id)}
+        onDragOver={(e) => handleDragOver(e, task.id)}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, task.id)}
+        onDragEnd={handleDragEnd}
+      >
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -974,6 +989,63 @@ const GanttManager = () => {
       }));
     };
     reader.readAsDataURL(file);
+  };
+
+  // 拖曳處理函數
+  const handleDragStart = (e, taskId) => {
+    setDraggedTaskId(taskId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e, taskId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverTaskId(taskId);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverTaskId(null);
+  };
+
+  const handleDrop = (e, targetTaskId) => {
+    e.preventDefault();
+    if (!draggedTaskId || draggedTaskId === targetTaskId) {
+      setDraggedTaskId(null);
+      setDragOverTaskId(null);
+      return;
+    }
+
+    updateTasks((prevTasks) => {
+      const draggedTask = prevTasks.find(t => t.id === draggedTaskId);
+      const targetTask = prevTasks.find(t => t.id === targetTaskId);
+
+      if (!draggedTask || !targetTask) return prevTasks;
+
+      // 只允許同類別內拖曳
+      if (draggedTask.category !== targetTask.category) {
+        return prevTasks;
+      }
+
+      const sameCategoryTasks = prevTasks.filter(t => t.category === draggedTask.category);
+      const otherTasks = prevTasks.filter(t => t.category !== draggedTask.category);
+
+      const draggedIndex = sameCategoryTasks.findIndex(t => t.id === draggedTaskId);
+      const targetIndex = sameCategoryTasks.findIndex(t => t.id === targetTaskId);
+
+      const reorderedTasks = [...sameCategoryTasks];
+      const [removed] = reorderedTasks.splice(draggedIndex, 1);
+      reorderedTasks.splice(targetIndex, 0, removed);
+
+      return [...otherTasks, ...reorderedTasks];
+    });
+
+    setDraggedTaskId(null);
+    setDragOverTaskId(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTaskId(null);
+    setDragOverTaskId(null);
   };
 
   const categoryMeta = [
@@ -1382,7 +1454,20 @@ const GanttManager = () => {
                 const remainingMaterials = (task.materials?.length || 0) - maxMaterialsToShow;
 
                 return (
-                  <div key={task.id} className="p-4 border border-gray-200 rounded-lg bg-indigo-50/40 space-y-3">
+                  <div
+                    key={task.id}
+                    className={`p-4 border border-gray-200 rounded-lg bg-indigo-50/40 space-y-3 cursor-move transition-all ${
+                      draggedTaskId === task.id ? 'opacity-50' : ''
+                    } ${
+                      dragOverTaskId === task.id ? 'border-2 border-indigo-500' : ''
+                    }`}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, task.id)}
+                    onDragOver={(e) => handleDragOver(e, task.id)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, task.id)}
+                    onDragEnd={handleDragEnd}
+                  >
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2 flex-wrap">
