@@ -1016,27 +1016,25 @@ const GanttManager = () => {
     }
 
     updateTasks((prevTasks) => {
-      const draggedTask = prevTasks.find(t => t.id === draggedTaskId);
-      const targetTask = prevTasks.find(t => t.id === targetTaskId);
+      const draggedIndex = prevTasks.findIndex(t => t.id === draggedTaskId);
+      const targetIndex = prevTasks.findIndex(t => t.id === targetTaskId);
 
-      if (!draggedTask || !targetTask) return prevTasks;
+      if (draggedIndex === -1 || targetIndex === -1) return prevTasks;
+
+      const draggedTask = prevTasks[draggedIndex];
+      const targetTask = prevTasks[targetIndex];
 
       // 只允許同類別內拖曳
       if (draggedTask.category !== targetTask.category) {
         return prevTasks;
       }
 
-      const sameCategoryTasks = prevTasks.filter(t => t.category === draggedTask.category);
-      const otherTasks = prevTasks.filter(t => t.category !== draggedTask.category);
+      // 互換兩個任務的位置
+      const newTasks = [...prevTasks];
+      newTasks[draggedIndex] = targetTask;
+      newTasks[targetIndex] = draggedTask;
 
-      const draggedIndex = sameCategoryTasks.findIndex(t => t.id === draggedTaskId);
-      const targetIndex = sameCategoryTasks.findIndex(t => t.id === targetTaskId);
-
-      const reorderedTasks = [...sameCategoryTasks];
-      const [removed] = reorderedTasks.splice(draggedIndex, 1);
-      reorderedTasks.splice(targetIndex, 0, removed);
-
-      return [...otherTasks, ...reorderedTasks];
+      return newTasks;
     });
 
     setDraggedTaskId(null);
