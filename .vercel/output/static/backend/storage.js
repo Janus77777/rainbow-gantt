@@ -5,12 +5,16 @@ import { createClient } from 'redis';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, 'tasks.json');
+
+const SEED_DATA_FILE = path.join(__dirname, 'tasks.json');
+const RUNTIME_DATA_FILE = process.env.VERCEL ? path.join('/tmp', 'gantt-tasks.json') : SEED_DATA_FILE;
 const hasRemoteKv = Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 const hasRedis = Boolean(process.env.REDIS_URL);
 const KV_KEY = process.env.KV_KEY || 'gantt:tasks';
 
 let redisClient = null;
+let inMemoryTasks = globalThis.__GANTT_TASK_CACHE || null;
+globalThis.__GANTT_TASK_CACHE = inMemoryTasks;
 
 const getRedisClient = async () => {
   if (!hasRedis) {
@@ -57,6 +61,13 @@ const requestKv = async (command, ...args) => {
 };
 
 export const loadTasks = async () => {
+  console.log('[storage] loadTasks called, in-memory cache exists:', Array.isArray(inMemoryTasks));
+
+  if (Array.isArray(inMemoryTasks)) {
+    console.log('[storage] Returning from in-memory cache:', inMemoryTasks.length, 'tasks');
+    return inMemoryTasks;
+  }
+
   const redis = await getRedisClient();
   if (redis) {
     try {
@@ -64,11 +75,18 @@ export const loadTasks = async () => {
       if (value) {
         const parsed = JSON.parse(value);
         if (Array.isArray(parsed)) {
+          console.log('[storage] Loaded from Redis:', parsed.length, 'tasks');
+          inMemoryTasks = parsed;
+          globalThis.__GANTT_TASK_CACHE = inMemoryTasks;
           return parsed;
         }
       }
     } catch (error) {
-      console.warn('[storage] unable to read from Redis, falling back to KV/file', error);
+      console.warn('[storage] unable to read from Redis, falling back to KV/file');
+      console.error('[storage] Redis error details:', {
+        message: error?.message,
+        stack: error?.stack
+      });
     }
   }
 
@@ -78,50 +96,114 @@ export const loadTasks = async () => {
       if (result && typeof result.result === 'string') {
         const parsed = JSON.parse(result.result);
         if (Array.isArray(parsed)) {
+          console.log('[storage] Loaded from KV:', parsed.length, 'tasks');
+          inMemoryTasks = parsed;
+          globalThis.__GANTT_TASK_CACHE = inMemoryTasks;
           return parsed;
         }
       }
     } catch (error) {
-      console.warn('[storage] unable to read from KV, falling back to file', error);
+      console.warn('[storage] unable to read from KV, falling back to file');
+      console.error('[storage] KV error details:', {
+        message: error?.message,
+        stack: error?.stack
+      });
     }
   }
 
   try {
-    const raw = await fs.readFile(DATA_FILE, 'utf8');
+    let raw;
+    try {
+      raw = await fs.readFile(RUNTIME_DATA_FILE, 'utf8');
+      console.log('[storage] Read runtime file:', RUNTIME_DATA_FILE, 'size:', raw.length, 'bytes');
+    } catch (runtimeError) {
+      if (runtimeError.code === 'ENOENT') {
+        console.log('[storage] Runtime file not found, copying from seed:', SEED_DATA_FILE);
+        const seed = await fs.readFile(SEED_DATA_FILE, 'utf8');
+        await fs.writeFile(RUNTIME_DATA_FILE, seed, 'utf8');
+        raw = seed;
+      } else {
+        throw runtimeError;
+      }
+    }
+
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed)) {
+      inMemoryTasks = parsed;
+      globalThis.__GANTT_TASK_CACHE = inMemoryTasks;
+      console.log('[storage] Loaded from file:', parsed.length, 'tasks');
       return parsed;
     }
   } catch (error) {
     if (error.code === 'ENOENT') {
-      await fs.writeFile(DATA_FILE, '[]', 'utf8');
+      console.warn('[storage] File not found, creating empty array');
+      await fs.writeFile(RUNTIME_DATA_FILE, '[]', 'utf8');
       return [];
     }
-    console.error('[storage] failed to read tasks.json', error);
+    console.error('[storage] failed to read tasks.json');
+    console.error('[storage] Error details:', {
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code
+    });
   }
 
+  console.warn('[storage] Returning empty array as fallback');
   return [];
 };
 
 export const saveTasks = async (tasks) => {
+  const taskCount = Array.isArray(tasks) ? tasks.length : 0;
+  const dataSize = JSON.stringify(tasks).length;
+
+  console.log(`[storage] saveTasks called with ${taskCount} tasks, size: ${dataSize} bytes`);
+
+  inMemoryTasks = Array.isArray(tasks) ? tasks : [];
+  globalThis.__GANTT_TASK_CACHE = inMemoryTasks;
+
   const redis = await getRedisClient();
   if (redis) {
     try {
-      await redis.set(KV_KEY, JSON.stringify(tasks));
+      await redis.set(KV_KEY, JSON.stringify(inMemoryTasks));
+      console.log(`[storage] Successfully saved ${taskCount} tasks to Redis`);
       return;
     } catch (error) {
-      console.error('[storage] failed to write to Redis, falling back to KV/file', error);
+      console.error('[storage] failed to write to Redis, falling back to KV/file');
+      console.error('[storage] Redis error details:', {
+        message: error?.message,
+        stack: error?.stack,
+        dataSize
+      });
     }
   }
 
   if (hasRemoteKv) {
     try {
-      await requestKv('set', KV_KEY, JSON.stringify(tasks));
+      await requestKv('set', KV_KEY, JSON.stringify(inMemoryTasks));
+      console.log(`[storage] Successfully saved ${taskCount} tasks to KV`);
       return;
     } catch (error) {
-      console.error('[storage] failed to write to KV, falling back to file', error);
+      console.error('[storage] failed to write to KV, falling back to file');
+      console.error('[storage] KV error details:', {
+        message: error?.message,
+        stack: error?.stack,
+        dataSize
+      });
     }
   }
 
-  await fs.writeFile(DATA_FILE, JSON.stringify(tasks, null, 2), 'utf8');
+  try {
+    await fs.writeFile(RUNTIME_DATA_FILE, JSON.stringify(inMemoryTasks, null, 2), 'utf8');
+    console.log(`[storage] Successfully saved ${taskCount} tasks to file: ${RUNTIME_DATA_FILE}`);
+  } catch (error) {
+    console.error('[storage] failed to write tasks to runtime file, keeping in-memory cache');
+    console.error('[storage] File write error details:', {
+      message: error?.message,
+      stack: error?.stack,
+      code: error?.code,
+      file: RUNTIME_DATA_FILE,
+      dataSize
+    });
+    throw error; // Re-throw to propagate error to API handler
+  }
 };
