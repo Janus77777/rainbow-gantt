@@ -1,558 +1,623 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { FileText, Edit2, Trash2, Plus, Link as LinkIcon, Image, File, ExternalLink, Paperclip, X } from 'lucide-react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, useLayoutEffect } from 'react';
+import {
+  FileText,
+  Edit2,
+  Trash2,
+  Plus,
+  Link as LinkIcon,
+  Image,
+  File,
+  ExternalLink,
+  Paperclip,
+  X,
+  Calendar,
+  Users,
+  LayoutGrid,
+  RefreshCw,
+  Loader2,
+  Eye,
+} from 'lucide-react';
 
 const catAvatar =
   'data:image/jpeg;base64,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';
 
-const mergeMaterials = (remoteMaterials = [], localMaterials = []) => {
-  const merged = [];
-  const indexById = new Map();
+const DEFAULT_VIEW_RANGE = {
+  start: '2025-09-01',
+  end: '2025-11-30',
+} as const;
 
-  if (Array.isArray(remoteMaterials)) {
-    remoteMaterials.forEach((material) => {
-      if (!material) return;
-      const copy = { ...material };
-      const position = merged.push(copy) - 1;
-      if (copy.id !== undefined && copy.id !== null) {
-        indexById.set(copy.id, position);
-      }
-    });
-  }
+const DEFAULT_PROJECT_TITLE = '入職三個月目標';
+const DEFAULT_WORKSPACE_ID = 'default';
 
-  if (Array.isArray(localMaterials)) {
-    localMaterials.forEach((material) => {
-      if (!material) return;
-      const key = material.id;
-      if (key !== undefined && key !== null && indexById.has(key)) {
-        const targetIndex = indexById.get(key);
-        const existing = merged[targetIndex];
-        merged[targetIndex] = {
-          ...existing,
-          ...material,
-          dataUrl: material.dataUrl || existing?.dataUrl || '',
-        };
-      } else {
-        const copy = { ...material };
-        const position = merged.push(copy) - 1;
-        if (copy.id !== undefined && copy.id !== null) {
-          indexById.set(copy.id, position);
-        }
-      }
-    });
-  }
+const buildWorkspaceUrl = (workspaceId: string, extraQuery: Record<string, string | undefined> = {}) => {
+  const searchParams = new URLSearchParams();
+  searchParams.set('workspace', workspaceId);
+  Object.entries(extraQuery).forEach(([key, value]) => {
+    if (typeof value === 'string' && value.length > 0) {
+      searchParams.set(key, value);
+    }
+  });
 
-  return merged;
+  return `/?${searchParams.toString()}`;
 };
 
-const mergeTasks = (remoteTasks = [], localTasks = []) => {
-  const merged = [];
-  const indexById = new Map();
-
-  if (Array.isArray(remoteTasks)) {
-    remoteTasks.forEach((task) => {
-      if (!task) return;
-      const copy = {
-        ...task,
-        materials: mergeMaterials(task.materials, []),
-      };
-      const position = merged.push(copy) - 1;
-      if (copy.id !== undefined && copy.id !== null) {
-        indexById.set(copy.id, position);
-      }
-    });
+const computeDefaultApiBase = () => {
+  if (typeof window === 'undefined') {
+    return '';
   }
 
-  if (Array.isArray(localTasks)) {
-    localTasks.forEach((task) => {
-      if (!task) return;
-      const key = task.id;
-      if (key !== undefined && key !== null && indexById.has(key)) {
-        const targetIndex = indexById.get(key);
-        const existing = merged[targetIndex];
-        merged[targetIndex] = {
-          ...existing,
-          ...task,
-          materials: mergeMaterials(existing?.materials, task.materials),
-        };
-      } else {
-        const copy = {
-          ...task,
-          materials: mergeMaterials([], task.materials),
-        };
-        const position = merged.push(copy) - 1;
-        if (copy.id !== undefined && copy.id !== null) {
-          indexById.set(copy.id, position);
-        }
-      }
-    });
+  const host = window.location.hostname;
+  if (host === 'localhost' || host === '127.0.0.1') {
+    return 'http://localhost:3001';
   }
 
-  return merged;
+  if (host.endsWith('.vercel.app')) {
+    return 'https://backend-janus-projects-f12c2f60.vercel.app';
+  }
+
+  return '';
 };
 
-const sanitizeTasksForSync = (tasks) =>
+const resolveApiBaseUrl = () => {
+  const rawEnv = import.meta.env;
+  const envValue =
+    rawEnv && typeof rawEnv.VITE_API_BASE_URL === 'string' ? rawEnv.VITE_API_BASE_URL.trim() : '';
+  const fallback = computeDefaultApiBase();
+  return (envValue || fallback || '').replace(/\/$/, '');
+};
+
+const bootstrapEntryOverride = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const current = {
+    pathname: window.location.pathname || '/',
+    search: window.location.search || '',
+  };
+  if (current.pathname.startsWith('/management')) {
+    (window as any).__GANTT_ENTRY_OVERRIDE = current;
+    const newUrl = current.search ? `/${current.search}` : '/';
+    window.history.replaceState(window.history.state, '', newUrl);
+    return current;
+  }
+  (window as any).__GANTT_ENTRY_OVERRIDE = null;
+  return null;
+};
+
+const ENTRY_OVERRIDE = bootstrapEntryOverride();
+
+const formatDateRangeLabel = (range?: { start?: string; end?: string }) => {
+  if (!range) return '未設定';
+  const start = range.start || '';
+  const end = range.end || '';
+  if (!start && !end) return '未設定';
+  if (!start || !end) {
+    return `${start || end}`;
+  }
+  return `${start} - ${end}`;
+};
+
+const formatUpdatedAtLabel = (value?: string) => {
+  if (!value) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
+
+const cloneTasks = (tasks) =>
   (Array.isArray(tasks) ? tasks : []).map((task) => ({
     ...task,
     materials: Array.isArray(task.materials)
-      ? task.materials.map((material) => {
-          if (!material) return material;
-          // Remove dataUrl from ALL materials, not just images
-          // This ensures we never accidentally send base64 data to the server
-          const { dataUrl, ...rest } = material;
-          return rest;
-        })
+      ? task.materials.map((material) => (material ? { ...material } : material))
       : [],
   }));
 
-const GanttManager = () => {
-  const appRef = useRef(null);
-  const initialTasks = [
-    {
-      id: 1,
-      name: '會議記錄工具開發',
-      startDate: '2025-09-01',
-      endDate: '2025-10-22',
-      status: 'completed',
-      category: 'AI賦能',
-      progress: 100,
-      description: 'Electron桌面應用，含STT轉錄、AI摘要',
-      materials: [
-        { id: 1, type: 'link', name: '動態說明書', url: 'https://example.com/docs', note: '完整使用文檔' },
-        { id: 2, type: 'link', name: '專案架構文件', url: 'https://example.com/architecture', note: '技術架構說明' }
-      ]
-    },
-    {
-      id: 2,
-      name: '銷售流程圖',
-      startDate: '2025-09-15',
-      endDate: '2025-10-05',
-      status: 'completed',
-      category: '流程優化',
-      progress: 100,
-      description: '訪談銷售同事，繪製流程圖',
-      materials: []
-    },
-    {
-      id: 3,
-      name: 'iMobile 產品網站',
-      startDate: '2025-09-20',
-      endDate: '2025-10-22',
-      status: 'completed',
-      category: '產品行銷',
-      progress: 100,
-      description: '產品介紹網頁製作與上線',
-      materials: [
-        { id: 1, type: 'link', name: '線上網站', url: 'https://imobilebi.com', note: 'iMobile BI 產品官網' }
-      ]
-    },
-    {
-      id: 4,
-      name: 'MSTR 產品網站',
-      startDate: '2025-10-23',
-      endDate: '2025-10-31',
-      status: 'in-progress',
-      category: '產品行銷',
-      progress: 70,
-      description: '產品介紹網頁製作中',
-      materials: []
-    },
-    {
-      id: 5,
-      name: 'DemandETL 產品網站',
-      startDate: '2025-11-01',
-      endDate: '2025-11-15',
-      status: 'pending',
-      category: '產品行銷',
-      progress: 0,
-      description: '第三個產品網站製作',
-      materials: []
-    },
-    {
-      id: 6,
-      name: '三個網站優化',
-      startDate: '2025-11-01',
-      endDate: '2025-11-30',
-      status: 'pending',
-      category: '產品行銷',
-      progress: 0,
-      description: '根據回饋優化三個產品網站',
-      materials: []
-    },
-    {
-      id: 7,
-      name: 'GA 流量分析設定',
-      startDate: '2025-11-05',
-      endDate: '2025-11-15',
-      status: 'pending',
-      category: '產品行銷',
-      progress: 0,
-      description: '導入SEO關鍵字與GA流量統計',
-      materials: []
-    },
-    {
-      id: 8,
-      name: 'SOP 撰寫',
-      startDate: '2025-11-01',
-      endDate: '2025-11-20',
-      status: 'pending',
-      category: '流程優化',
-      progress: 0,
-      description: '銷售團隊標準作業程序文件',
-      materials: []
-    },
-    {
-      id: 9,
-      name: 'SEO 優化執行',
-      startDate: '2025-11-10',
-      endDate: '2025-11-25',
-      status: 'pending',
-      category: '品牌行銷',
-      progress: 0,
-      description: '網站與文章SEO優化',
-      materials: []
-    },
-    {
-      id: 10,
-      name: '季度成效報告',
-      startDate: '2025-11-23',
-      endDate: '2025-11-30',
-      status: 'pending',
-      category: '品牌行銷',
-      progress: 0,
-      description: '三個月工作成果總結報告',
-      materials: []
-    },
-    {
-      id: 11,
-      name: '品牌文章撰寫',
-      startDate: '2025-09-10',
-      endDate: '2025-11-30',
-      status: 'unpublished',
-      category: '品牌行銷',
-      progress: 78,
-      description: '已完成7篇，待審查發布',
-      materials: []
-    },
-    {
-      id: 12,
-      name: '客戶開發（Capalyze）',
-      startDate: '2025-10-10',
-      endDate: '2025-11-15',
-      status: 'blocked',
-      category: '客戶開發',
-      progress: 30,
-      description: '技術卡關中',
-      materials: []
-    },
-    {
-      id: 13,
-      name: 'Agentic Coding 工具研究',
-      startDate: '2025-09-05',
-      endDate: '2025-10-20',
-      status: 'completed',
-      category: '學習與成長',
-      progress: 100,
-      description: '研究AI編程工具',
-      materials: []
-    },
-    {
-      id: 15,
-      name: '版本控制工具學習',
-      startDate: '2025-09-10',
-      endDate: '2025-10-15',
-      status: 'completed',
-      category: '學習與成長',
-      progress: 100,
-      description: 'Git工具研究',
-      materials: []
-    },
-    {
-      id: 26,
-      name: 'CI/CD 方法學習',
-      startDate: '2025-10-01',
-      endDate: '2025-11-05',
-      status: 'in-progress',
-      category: '學習與成長',
-      progress: 40,
-      description: '持續整合/部署流程實作',
-      materials: []
-    },
-    {
-      id: 16,
-      name: 'Prompt Engineering 研究',
-      startDate: '2025-09-20',
-      endDate: '2025-11-30',
-      status: 'in-progress',
-      category: '學習與成長',
-      progress: 65,
-      description: '提示詞工程研究',
-      materials: []
-    },
-    {
-      id: 17,
-      name: '跨平台開發踩坑紀錄',
-      startDate: '2025-09-15',
-      endDate: '2025-10-22',
-      status: 'completed',
-      category: '學習與成長',
-      progress: 100,
-      description: 'Electron開發經驗',
-      materials: []
-    },
-    {
-      id: 18,
-      name: '內容自動化工作流',
-      startDate: '2025-10-01',
-      endDate: '2025-11-30',
-      status: 'in-progress',
-      category: '學習與成長',
-      progress: 40,
-      description: 'n8n/Dify 自動化系統',
-      materials: []
-    },
-    {
-      id: 19,
-      name: 'AI工作流持續研究',
-      startDate: '2025-09-01',
-      endDate: '2025-11-30',
-      status: 'in-progress',
-      category: '學習與成長',
-      progress: 50,
-      description: 'MCP、Computer Use 追蹤',
-      materials: []
-    }
-  ];
+const sanitizeTasksForSync = (tasks) => cloneTasks(tasks);
 
-  const computeDefaultApiBase = () => {
-    if (typeof window === 'undefined') {
-      return '';
-    }
+function parseDate(dateString) {
+  if (!dateString) return null;
+  return new Date(`${dateString}T00:00:00Z`);
+}
 
-    const host = window.location.hostname;
-    if (host === 'localhost' || host === '127.0.0.1') {
-      return 'http://localhost:3001';
-    }
+function normalizeRange(range, fallback = DEFAULT_VIEW_RANGE) {
+  const fallbackRange = fallback || DEFAULT_VIEW_RANGE;
+  const hasStart = range && typeof range.start === 'string';
+  const hasEnd = range && typeof range.end === 'string';
+  const rawStart = hasStart ? range.start : fallbackRange.start;
+  const rawEnd = hasEnd ? range.end : fallbackRange.end;
 
-    if (host.endsWith('.vercel.app')) {
-      return 'https://backend-janus-projects-f12c2f60.vercel.app';
-    }
+  const startDate = parseDate(rawStart);
+  const endDate = parseDate(rawEnd);
 
-    return '';
+  if (startDate && endDate) {
+    if (endDate.getTime() < startDate.getTime()) {
+      return { start: rawEnd, end: rawStart };
+    }
+    return { start: rawStart, end: rawEnd };
+  }
+
+  return { start: fallbackRange.start, end: fallbackRange.end };
+}
+
+const toInputDate = (date) => {
+  if (!date) return '';
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - tzOffset).toISOString().slice(0, 10);
+};
+
+function computeRangeFromTasks(taskList) {
+  const list = Array.isArray(taskList) ? taskList : [];
+  const startDates = list
+    .map((task) => parseDate(task && task.startDate))
+    .filter((date) => date instanceof Date && !Number.isNaN(date.getTime()));
+  const endDates = list
+    .map((task) => parseDate(task && task.endDate))
+    .filter((date) => date instanceof Date && !Number.isNaN(date.getTime()));
+
+  if (!startDates.length || !endDates.length) {
+    return { ...DEFAULT_VIEW_RANGE };
+  }
+
+  const minStart = new Date(Math.min(...startDates.map((date) => date.getTime())));
+  const maxEnd = new Date(Math.max(...endDates.map((date) => date.getTime())));
+
+  return {
+    start: toInputDate(minStart),
+    end: toInputDate(maxEnd),
   };
+}
 
-  const resolvedEnvApiBase = (() => {
-    const value = import.meta.env?.VITE_API_BASE_URL;
-    return typeof value === 'string' ? value.trim() : '';
-  })();
+type GanttWorkspaceAppProps = {
+  workspaceId: string;
+  embedMode: boolean;
+  apiBaseUrl: string;
+  onContextRefresh?: (nextWorkspaceId?: string) => void;
+  onOpenManager?: () => void;
+};
 
-  const rawApiBase = resolvedEnvApiBase || computeDefaultApiBase();
-  const API_BASE_URL = rawApiBase ? rawApiBase.replace(/\/$/, '') : '';
+const GanttWorkspaceApp: React.FC<GanttWorkspaceAppProps> = ({
+  workspaceId,
+  embedMode,
+  apiBaseUrl,
+  onContextRefresh,
+  onOpenManager,
+}) => {
+  const appRef = useRef(null);
+  const API_BASE_URL = apiBaseUrl;
   const [apiAvailable, setApiAvailable] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncError, setSyncError] = useState(null);
-  const [tasks, setTasks] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = window.localStorage.getItem('ganttTasks');
-        if (stored) {
-          return JSON.parse(stored);
-        }
-      } catch (error) {
-        console.error('Failed to parse stored tasks', error);
-      }
-    }
-    return initialTasks;
-  });
+  const [tasks, setTasks] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
+  const tasksRef = useRef([]);
+  const autoRangeRef = useRef({ ...DEFAULT_VIEW_RANGE });
+  const projectTitleRef = useRef(DEFAULT_PROJECT_TITLE);
+  const [persistedRangeMode, setPersistedRangeMode] = useState<'auto' | 'custom'>('auto');
+  const [persistedViewRange, setPersistedViewRange] = useState(() => ({ ...DEFAULT_VIEW_RANGE }));
+  const [workspaceMeta, setWorkspaceMeta] = useState<{
+    id: string;
+    name?: string;
+    owner?: string;
+    color?: string;
+    updatedAt?: string;
+  } | null>(null);
+  const defaultCategoryOptions = useMemo(
+    () => ['AI賦能', '流程優化', '產品行銷', '品牌行銷', '客戶開發', '學習與成長'],
+    []
+  );
+  const [categoryOptions, setCategoryOptions] = useState(defaultCategoryOptions);
+  const [newCategoryDraft, setNewCategoryDraft] = useState('');
+  useEffect(() => {
+    tasksRef.current = tasks;
+  }, [tasks]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem('ganttTasks', JSON.stringify(tasks));
-      } catch (error) {
-        console.error('Failed to persist tasks', error);
-      }
+    if (!editingTask) {
+      setNewCategoryDraft('');
     }
-  }, [tasks]);
+  }, [editingTask]);
+
+  useEffect(() => {
+    setCategoryOptions((prev) => {
+      const merged: string[] = [];
+      const seen = new Set<string>();
+
+      defaultCategoryOptions.forEach((option) => {
+        if (!seen.has(option)) {
+          seen.add(option);
+          merged.push(option);
+        }
+      });
+
+      prev.forEach((option) => {
+        if (option && !seen.has(option)) {
+          seen.add(option);
+          merged.push(option);
+        }
+      });
+
+      tasks.forEach((task) => {
+        const option = task?.category;
+        if (option && !seen.has(option)) {
+          seen.add(option);
+          merged.push(option);
+        }
+      });
+
+      if (merged.length === prev.length && merged.every((option, index) => option === prev[index])) {
+        return prev;
+      }
+
+      return merged;
+    });
+  }, [tasks, defaultCategoryOptions]);
+
+  const sanitizeSettingsForSync = useCallback(
+    (override = {}, tasksCandidate = null) => {
+      const hasOverride = override && typeof override === 'object';
+      const overrideMode = hasOverride ? override.rangeMode : undefined;
+      const requestedMode =
+        overrideMode === 'custom' || overrideMode === 'auto'
+          ? overrideMode
+          : persistedRangeMode;
+
+      const candidateExecutionTasks = Array.isArray(tasksCandidate)
+        ? tasksCandidate.filter((task) => task && task.category !== '學習與成長')
+        : null;
+      const autoRangeSource = candidateExecutionTasks
+        ? computeRangeFromTasks(candidateExecutionTasks)
+        : autoRangeRef.current;
+
+      const rangeSource =
+        hasOverride && override.viewRange != null
+          ? override.viewRange
+          : requestedMode === 'custom'
+          ? persistedViewRange
+          : autoRangeSource;
+
+      const normalizedRange = normalizeRange(rangeSource);
+
+      const rawTitle =
+        hasOverride && typeof override.projectTitle === 'string'
+          ? override.projectTitle
+          : projectTitleRef.current;
+      const safeTitle = rawTitle && rawTitle.trim() ? rawTitle.trim() : DEFAULT_PROJECT_TITLE;
+
+      return {
+        projectTitle: safeTitle,
+        rangeMode: requestedMode,
+        viewRange: normalizedRange,
+      };
+    },
+    [persistedRangeMode, persistedViewRange, normalizeRange, computeRangeFromTasks]
+  );
+
+  const applyRemoteState = useCallback(
+    (raw) => {
+      let normalized;
+      let meta = null;
+
+      if (Array.isArray(raw)) {
+        normalized = {
+          tasks: raw,
+          settings: sanitizeSettingsForSync({ rangeMode: 'auto' }, raw),
+        };
+      } else if (raw && typeof raw === 'object') {
+        const remoteTasks = Array.isArray(raw.tasks) ? raw.tasks : [];
+        const remoteSettings = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
+        const remoteMode = remoteSettings.rangeMode === 'custom' ? 'custom' : 'auto';
+        const remoteTitle =
+          typeof remoteSettings.projectTitle === 'string' && remoteSettings.projectTitle.trim()
+            ? remoteSettings.projectTitle.trim()
+            : DEFAULT_PROJECT_TITLE;
+        const normalizedRange = normalizeRange(remoteSettings.viewRange);
+
+        normalized = {
+          tasks: remoteTasks,
+          settings: {
+            projectTitle: remoteTitle,
+            rangeMode: remoteMode,
+            viewRange: normalizedRange,
+          },
+        };
+        if (raw.meta && typeof raw.meta === 'object') {
+          meta = {
+            id: String(raw.meta.id || workspaceId),
+            name: typeof raw.meta.name === 'string' ? raw.meta.name : undefined,
+            owner: typeof raw.meta.owner === 'string' ? raw.meta.owner : undefined,
+            color: typeof raw.meta.color === 'string' ? raw.meta.color : undefined,
+            updatedAt: typeof raw.meta.updatedAt === 'string' ? raw.meta.updatedAt : undefined,
+          };
+        }
+      } else {
+        normalized = {
+          tasks: [],
+          settings: sanitizeSettingsForSync({ rangeMode: 'auto' }, []),
+        };
+      }
+
+      setTasks(normalized.tasks);
+      setProjectTitle(normalized.settings.projectTitle);
+      setProjectTitleDraft(normalized.settings.projectTitle);
+      setPersistedRangeMode(normalized.settings.rangeMode);
+      setRangeMode(normalized.settings.rangeMode);
+      setPersistedViewRange((prev) =>
+        prev.start === normalized.settings.viewRange.start && prev.end === normalized.settings.viewRange.end
+          ? prev
+          : normalized.settings.viewRange
+      );
+      if (normalized.settings.rangeMode === 'custom') {
+        setViewRange((prev) =>
+          prev.start === normalized.settings.viewRange.start && prev.end === normalized.settings.viewRange.end
+            ? prev
+            : normalized.settings.viewRange
+        );
+      }
+
+      setWorkspaceMeta(
+        meta || {
+          id: workspaceId,
+          name: normalized.settings.projectTitle,
+        }
+      );
+
+      return normalized;
+    },
+    [sanitizeSettingsForSync, normalizeRange, workspaceId]
+  );
 
   useEffect(() => {
     let cancelled = false;
 
-    const fetchTasksFromApi = async () => {
-      if (typeof window === 'undefined' || !API_BASE_URL) {
+    const fetchWorkspace = async () => {
+      if (!API_BASE_URL) {
         return;
       }
 
       try {
-        const response = await fetch(`${API_BASE_URL}/tasks`, { cache: 'no-store' });
+        const response = await fetch(
+          `${API_BASE_URL}/tasks?workspaceId=${encodeURIComponent(workspaceId)}`,
+          { cache: 'no-store' }
+        );
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`);
         }
         const data = await response.json();
-        if (!cancelled && Array.isArray(data)) {
-          let mergedData = data;
-          if (typeof window !== 'undefined') {
-            try {
-              const stored = window.localStorage.getItem('ganttTasks');
-              if (stored) {
-                const localTasks = JSON.parse(stored);
-                if (Array.isArray(localTasks)) {
-                  mergedData = mergeTasks(data, localTasks);
-                }
-              }
-            } catch (storageError) {
-              console.warn('Failed to merge local tasks with API response', storageError);
+        if (!cancelled) {
+          applyRemoteState(data);
+          setApiAvailable(true);
+          setSyncError(null);
+
+          if (typeof window !== 'undefined' && !embedMode) {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('workspace') !== workspaceId) {
+              params.set('workspace', workspaceId);
+              const nextUrl = `${window.location.pathname}?${params.toString()}`;
+              window.history.replaceState(
+                { workspaceId },
+                '',
+                nextUrl
+              );
+              window.dispatchEvent(new Event('gantt:context-change'));
+              onContextRefresh && onContextRefresh(workspaceId);
             }
           }
-
-          setTasks(mergedData);
-          setApiAvailable(true);
         }
       } catch (error) {
-        console.warn('Failed to load tasks from API, falling back to local storage', error);
+        console.warn('Failed to load workspace from API', error);
+        if (!cancelled) {
+          setApiAvailable(false);
+          setSyncError('無法從雲端載入任務');
+        }
       }
     };
 
-    fetchTasksFromApi();
+    fetchWorkspace();
 
     return () => {
       cancelled = true;
     };
-  }, [API_BASE_URL]);
+  }, [API_BASE_URL, applyRemoteState, workspaceId, embedMode, onContextRefresh]);
 
-  const persistTasks = async (nextTasks) => {
-    if (!API_BASE_URL) {
-      return;
-    }
-
-    const payload = sanitizeTasksForSync(nextTasks);
-    const payloadSize = JSON.stringify(payload).length;
-
-    console.log(`[Frontend] Syncing ${payload.length} tasks, payload size: ${payloadSize} bytes`);
-
-    try {
-      setIsSyncing(true);
-      setSyncError(null); // Clear previous errors
-
-      const response = await fetch(`${API_BASE_URL}/tasks`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        let errorDetail = `HTTP ${response.status}`;
-        try {
-          const errorBody = await response.json();
-          errorDetail = errorBody.error || errorBody.detail || errorDetail;
-          console.error('[Frontend] API error response:', errorBody);
-        } catch (parseError) {
-          console.warn('[Frontend] Could not parse error response');
-        }
-        throw new Error(errorDetail);
+  const persistWorkspace = useCallback(
+    async (nextTasks, overrideSettings = {}) => {
+      if (!API_BASE_URL) {
+        const error = new Error('未設定雲端同步端點');
+        setSyncError(error.message);
+        throw error;
       }
+
+      const tasksPayload = sanitizeTasksForSync(nextTasks);
+      const settingsPayload = sanitizeSettingsForSync(overrideSettings, tasksPayload);
+      const payload = { tasks: tasksPayload, settings: settingsPayload };
+      const payloadSize = JSON.stringify(payload).length;
+
+      console.log(
+        `[Frontend] Syncing ${tasksPayload.length} tasks + settings, payload size: ${payloadSize} bytes`
+      );
+
+      setIsSyncing(true);
+      setSyncError(null);
 
       try {
-        const latestResponse = await fetch(`${API_BASE_URL}/tasks`, { cache: 'no-store' });
-        if (latestResponse.ok) {
-          const latestData = await latestResponse.json();
-          if (Array.isArray(latestData)) {
-            let merged = latestData;
-            if (typeof window !== 'undefined') {
-              try {
-                const stored = window.localStorage.getItem('ganttTasks');
-                if (stored) {
-                  const localTasks = JSON.parse(stored);
-                  if (Array.isArray(localTasks)) {
-                    merged = mergeTasks(latestData, localTasks);
-                  }
-                }
-              } catch (mergeError) {
-                console.warn('Failed to merge local tasks after sync', mergeError);
-              }
-            }
-            setTasks(merged);
+        const response = await fetch(
+          `${API_BASE_URL}/tasks?workspaceId=${encodeURIComponent(workspaceId)}`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
           }
+        );
+
+        if (!response.ok) {
+          let errorDetail = `HTTP ${response.status}`;
+          try {
+            const errorBody = await response.json();
+            errorDetail = errorBody.error || errorBody.detail || errorDetail;
+            console.error('[Frontend] API error response:', errorBody);
+          } catch (parseError) {
+            console.warn('[Frontend] Could not parse error response');
+          }
+          throw new Error(errorDetail);
         }
-      } catch (refreshError) {
-        console.warn('Failed to refresh tasks after sync', refreshError);
+
+        let latestData = payload;
+        try {
+          const latestResponse = await fetch(
+            `${API_BASE_URL}/tasks?workspaceId=${encodeURIComponent(workspaceId)}`,
+            { cache: 'no-store' }
+          );
+          if (latestResponse.ok) {
+            latestData = await latestResponse.json();
+          }
+        } catch (refreshError) {
+          console.warn('Failed to refresh workspace after sync', refreshError);
+        }
+
+        applyRemoteState(latestData);
+        setApiAvailable(true);
+        console.log('[Frontend] Sync successful');
+        return latestData;
+      } catch (error) {
+        console.error('[Frontend] Failed to sync workspace');
+        console.error('[Frontend] Error details:', {
+          message: error && error.message,
+          stack: error && error.stack,
+          payloadSize,
+          taskCount: tasksPayload.length,
+        });
+
+        const errorMessage = error && error.message ? error.message : '未知錯誤';
+        setSyncError(errorMessage);
+        setApiAvailable(false);
+
+        setTimeout(() => setSyncError(null), 10000);
+        throw error;
+      } finally {
+        setIsSyncing(false);
       }
-      setApiAvailable(true);
-      console.log('[Frontend] Sync successful');
-    } catch (error) {
-      console.error('[Frontend] Failed to sync tasks to API, switching to offline mode');
-      console.error('[Frontend] Error details:', {
-        message: error?.message,
-        stack: error?.stack,
-        payloadSize,
-        taskCount: payload.length
-      });
+    },
+    [API_BASE_URL, sanitizeSettingsForSync, applyRemoteState, workspaceId]
+  );
 
-      const errorMessage = error?.message || '未知錯誤';
-      setSyncError(errorMessage);
-      setApiAvailable(false);
+  const updateTasks = useCallback(
+    (updater) => {
+      const previousSnapshot = cloneTasks(tasksRef.current);
+      const candidate = typeof updater === 'function' ? updater(tasksRef.current) : updater;
+      const nextTasksArray = Array.isArray(candidate) ? candidate : [];
 
-      // Auto-clear error after 10 seconds
-      setTimeout(() => setSyncError(null), 10000);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
+      setTasks(nextTasksArray);
 
-  const updateTasks = (updater) => {
-    setTasks((prevTasks) => {
-      const nextTasks = typeof updater === 'function' ? updater(prevTasks) : updater;
-      persistTasks(nextTasks);
-      return nextTasks;
-    });
-  };
+      return persistWorkspace(nextTasksArray)
+        .catch((error) => {
+          console.error('[Frontend] Sync failed, reverting local changes', error);
+          setTasks(previousSnapshot);
+          return null;
+        });
+    },
+    [persistWorkspace]
+  );
 
-  const [editingTask, setEditingTask] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
   const [newMaterial, setNewMaterial] = useState({ type: 'link', name: '', url: '', note: '', dataUrl: '' });
-  const [projectTitle, setProjectTitle] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem('ganttProjectTitle');
-      if (stored) return stored;
-    }
-    return '入職三個月目標';
-  });
-  const [projectTitleDraft, setProjectTitleDraft] = useState(projectTitle);
+  const [projectTitle, setProjectTitle] = useState(DEFAULT_PROJECT_TITLE);
+  const [projectTitleDraft, setProjectTitleDraft] = useState(DEFAULT_PROJECT_TITLE);
   const [isTitleEditing, setIsTitleEditing] = useState(false);
-  const [containerWidth, setContainerWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1920);
+  const [containerWidth, setContainerWidth] = useState(1024);
+  const timelineViewportRef = useRef<HTMLDivElement | null>(null);
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [dragOverTaskId, setDragOverTaskId] = useState(null);
   const [isPanningImage, setIsPanningImage] = useState(false);
+  const [activePointerType, setActivePointerType] = useState<string | null>(null);
   const imageViewerRef = useRef<HTMLDivElement | null>(null);
+  const timelineScrollRef = useRef<HTMLDivElement | null>(null);
+  const topScrollTrackRef = useRef<HTMLDivElement | null>(null);
+  const thumbDragState = useRef<{
+    pointerId: number | null;
+    startX: number;
+    startThumbLeft: number;
+    maxThumbLeft: number;
+    maxScrollLeft: number;
+  }>({
+    pointerId: null,
+    startX: 0,
+    startThumbLeft: 0,
+    maxThumbLeft: 0,
+    maxScrollLeft: 0,
+  });
+  const [scrollIndicator, setScrollIndicator] = useState({
+    left: false,
+    right: false,
+    thumbWidthRatio: 1,
+    thumbLeftRatio: 0,
+    isOverflow: false,
+  });
   const panStateRef = useRef({
     isDragging: false,
     startX: 0,
     startY: 0,
     scrollLeft: 0,
     scrollTop: 0,
+    pointerId: null as number | null,
+    pointerType: null as string | null,
   });
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const titleBase = workspaceMeta?.name || projectTitle;
+    document.title = embedMode ? titleBase : `${titleBase} | 繽紛甘特圖管理`;
+  }, [workspaceMeta, projectTitle, embedMode]);
 
-    const handleResize = () => {
-      setContainerWidth(window.innerWidth);
+  const showNavigation = !embedMode;
+  const workspaceDisplayName = workspaceMeta?.name || projectTitle;
+  const workspaceOwner = workspaceMeta?.owner || '';
+  const workspaceColor = workspaceMeta?.color || '#6366f1';
+
+  useLayoutEffect(() => {
+    const updateWidth = () => {
+      const target = timelineViewportRef.current;
+      if (target) {
+        setContainerWidth(target.clientWidth);
+      } else if (typeof window !== 'undefined') {
+        setContainerWidth(window.innerWidth);
+      }
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    updateWidth();
+
+    let observer: ResizeObserver | null = null;
+
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => updateWidth());
+      if (timelineViewportRef.current) {
+        observer.observe(timelineViewportRef.current);
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('resize', updateWidth);
+    }
+
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('resize', updateWidth);
+      }
+    };
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        window.localStorage.setItem('ganttProjectTitle', projectTitle);
-      } catch (error) {
-        console.warn('Failed to persist project title', error);
-      }
-    }
-  }, [projectTitle]);
-
-  useEffect(() => {
+    projectTitleRef.current = projectTitle;
     setProjectTitleDraft(projectTitle);
   }, [projectTitle]);
 
@@ -580,54 +645,171 @@ const GanttManager = () => {
     imageViewerRef.current.scrollTo({ top: 0, left: 0 });
   }, [activeImage]);
 
-  useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      if (!panStateRef.current.isDragging || !imageViewerRef.current) return;
+  const viewerCursorClass =
+    activePointerType === 'mouse'
+      ? isPanningImage
+        ? 'cursor-grabbing'
+        : 'cursor-grab'
+      : 'cursor-auto';
+
+  const handleViewerPointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (!imageViewerRef.current) return;
+
+    setActivePointerType(event.pointerType);
+
+    if (event.pointerType === 'mouse' && event.button === 0) {
       event.preventDefault();
-      const dx = event.clientX - panStateRef.current.startX;
-      const dy = event.clientY - panStateRef.current.startY;
-      imageViewerRef.current.scrollLeft = panStateRef.current.scrollLeft - dx;
-      imageViewerRef.current.scrollTop = panStateRef.current.scrollTop - dy;
-    };
-
-    const handleMouseUp = () => {
-      if (!panStateRef.current.isDragging) return;
-      panStateRef.current.isDragging = false;
+      imageViewerRef.current.setPointerCapture(event.pointerId);
+      panStateRef.current = {
+        isDragging: true,
+        startX: event.clientX,
+        startY: event.clientY,
+        scrollLeft: imageViewerRef.current.scrollLeft,
+        scrollTop: imageViewerRef.current.scrollTop,
+        pointerId: event.pointerId,
+        pointerType: event.pointerType,
+      };
+      setIsPanningImage(true);
+    } else {
+      panStateRef.current = {
+        ...panStateRef.current,
+        pointerType: event.pointerType,
+        pointerId: event.pointerId,
+      };
       setIsPanningImage(false);
-    };
+    }
+  }, []);
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+  const handleViewerPointerMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const state = panStateRef.current;
+    if (
+      !state.isDragging ||
+      state.pointerId !== event.pointerId ||
+      !imageViewerRef.current
+    ) {
+      return;
+    }
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
+    event.preventDefault();
+    const dx = event.clientX - state.startX;
+    const dy = event.clientY - state.startY;
+    imageViewerRef.current.scrollLeft = state.scrollLeft - dx;
+    imageViewerRef.current.scrollTop = state.scrollTop - dy;
+  }, []);
+
+  const endPointerPan = useCallback((pointerId: number | null) => {
+    if (!panStateRef.current.isDragging) return;
+    if (pointerId !== null && panStateRef.current.pointerId !== pointerId) return;
+    panStateRef.current.isDragging = false;
+    panStateRef.current.pointerId = null;
+    setIsPanningImage(false);
+  }, []);
+
+  const handleViewerPointerUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (imageViewerRef.current && imageViewerRef.current.hasPointerCapture(event.pointerId)) {
+      imageViewerRef.current.releasePointerCapture(event.pointerId);
+    }
+    endPointerPan(event.pointerId);
+    setActivePointerType(null);
+  }, [endPointerPan]);
+
+  const handleViewerPointerCancel = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (imageViewerRef.current && imageViewerRef.current.hasPointerCapture(event.pointerId)) {
+      imageViewerRef.current.releasePointerCapture(event.pointerId);
+    }
+    endPointerPan(event.pointerId);
+    setActivePointerType(null);
+  }, [endPointerPan]);
+
+  const handleViewerWheel = useCallback((event: React.WheelEvent<HTMLDivElement>) => {
+    if (!imageViewerRef.current) return;
+    if (event.ctrlKey) {
+      return; // allow native pinch-zoom gestures
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    imageViewerRef.current.scrollTop += event.deltaY;
+    imageViewerRef.current.scrollLeft += event.deltaX;
   }, []);
 
   const msPerDay = 1000 * 60 * 60 * 24;
-  const isEditingLearning = editingTask?.category === '學習與成長';
+  const isEditingLearning = editingTask && editingTask.category === '學習與成長';
 
   const executionTasks = useMemo(
-    () => tasks.filter(t => t.category !== '學習與成長'),
+    () => tasks.filter((t) => t.category !== '學習與成長'),
     [tasks]
   );
 
   const learningTasks = useMemo(
-    () => tasks.filter(t => t.category === '學習與成長'),
+    () => tasks.filter((t) => t.category === '學習與成長'),
     [tasks]
   );
 
-  const parseDate = (dateString) => {
-    if (!dateString) return null;
-    return new Date(`${dateString}T00:00:00Z`);
-  };
+  const dashboardTasks = executionTasks;
 
-  const toInputDate = (date) => {
-    if (!date) return '';
-    const tzOffset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - tzOffset).toISOString().slice(0, 10);
-  };
+  const baseCategoryColors = useMemo(
+    () => ({
+      AI賦能: '#a855f7',
+      流程優化: '#3b82f6',
+      產品行銷: '#22c55e',
+      品牌行銷: '#eab308',
+      客戶開發: '#ef4444',
+      學習與成長: '#6366f1',
+    }),
+    []
+  );
+
+  const categoryColorMap = useMemo(() => {
+    const palette = [
+      '#0ea5e9',
+      '#f97316',
+      '#14b8a6',
+      '#f87171',
+      '#8b5cf6',
+      '#10b981',
+      '#ec4899',
+      '#f59e0b',
+      '#94a3b8',
+      '#7c3aed',
+    ];
+    const map = new Map<string, string>();
+    const used = new Set<string>();
+
+    Object.entries(baseCategoryColors).forEach(([name, color]) => {
+      map.set(name, color);
+      used.add(color);
+    });
+
+    let paletteIndex = 0;
+    const nextColor = () => {
+      while (paletteIndex < palette.length && used.has(palette[paletteIndex])) {
+        paletteIndex += 1;
+      }
+      let color: string;
+      if (paletteIndex < palette.length) {
+        color = palette[paletteIndex];
+        paletteIndex += 1;
+      } else {
+        const hue = (paletteIndex * 47) % 360;
+        color = `hsl(${hue} 85% 60%)`;
+        paletteIndex += 1;
+      }
+      used.add(color);
+      return color;
+    };
+
+    const assignIfNeeded = (name: string | null | undefined) => {
+      if (!name || map.has(name)) {
+        return;
+      }
+      map.set(name, nextColor());
+    };
+
+    categoryOptions.forEach(assignIfNeeded);
+    dashboardTasks.forEach((task) => assignIfNeeded(task?.category));
+
+    return map;
+  }, [baseCategoryColors, categoryOptions, dashboardTasks]);
 
   const formatTaskDate = (dateString) => {
     const parsed = parseDate(dateString);
@@ -640,45 +822,244 @@ const GanttManager = () => {
     }).format(parsed);
   };
 
-  // 任務時間範圍
-  const fallbackStart = parseDate('2025-09-01');
-  const fallbackEnd = parseDate('2025-11-30');
+  const defaultStartDate = useMemo(() => parseDate(DEFAULT_VIEW_RANGE.start), []);
+  const defaultEndDate = useMemo(() => parseDate(DEFAULT_VIEW_RANGE.end), []);
 
-  const executionStartDates = executionTasks
-    .map(task => parseDate(task.startDate))
-    .filter(Boolean);
-  const executionEndDates = executionTasks
-    .map(task => parseDate(task.endDate))
-    .filter(Boolean);
+  const autoRange = useMemo(() => computeRangeFromTasks(executionTasks), [executionTasks]);
 
-  const timelineStart = executionStartDates.length
-    ? new Date(Math.min(...executionStartDates.map(date => date.getTime())))
-    : fallbackStart;
+  useEffect(() => {
+    autoRangeRef.current = normalizeRange(autoRange);
+  }, [autoRange, normalizeRange]);
 
-  const rawTimelineEnd = executionEndDates.length
-    ? new Date(Math.max(...executionEndDates.map(date => date.getTime())))
-    : fallbackEnd;
+  const [rangeMode, setRangeMode] = useState<'auto' | 'custom'>('auto');
+  const [viewRange, setViewRange] = useState(() => ({ ...autoRange }));
 
+  useEffect(() => {
+    const normalizedAuto = normalizeRange(autoRange);
+
+    if (rangeMode === 'auto') {
+      setViewRange((prev) =>
+        prev.start === normalizedAuto.start && prev.end === normalizedAuto.end ? prev : normalizedAuto
+      );
+    }
+
+    if (persistedRangeMode === 'auto') {
+      setPersistedViewRange((prev) =>
+        prev.start === normalizedAuto.start && prev.end === normalizedAuto.end ? prev : normalizedAuto
+      );
+    }
+  }, [autoRange, rangeMode, persistedRangeMode]);
+
+  const resolvedRange = useMemo(() => {
+    const fallbackStartDate = parseDate(autoRange.start) || defaultStartDate;
+    const fallbackEndDate = parseDate(autoRange.end) || defaultEndDate;
+
+    const inputStart = viewRange.start ? parseDate(viewRange.start) : null;
+    const inputEnd = viewRange.end ? parseDate(viewRange.end) : null;
+
+    let startDate = inputStart || fallbackStartDate;
+    let endDate = inputEnd || fallbackEndDate;
+    let error = '';
+
+    if (rangeMode === 'custom' && (!inputStart || !inputEnd)) {
+      error = '請選擇完整的日期範圍';
+    }
+
+    if (startDate && endDate && endDate < startDate) {
+      error = '結束日需晚於開始日';
+      endDate = startDate;
+    }
+
+    return {
+      start: startDate || defaultStartDate,
+      end: endDate || defaultEndDate,
+      error,
+    };
+  }, [viewRange, autoRange, rangeMode, defaultStartDate, defaultEndDate]);
+
+  const rangeError = resolvedRange.error;
+  const timelineStart = resolvedRange.start || defaultStartDate;
+  const rawTimelineEnd = resolvedRange.end || timelineStart;
   const timelineEnd = rawTimelineEnd < timelineStart ? new Date(timelineStart) : rawTimelineEnd;
 
+  const hasPendingRangeChanges = useMemo(() => {
+    if (rangeMode !== persistedRangeMode) {
+      return true;
+    }
+    if (rangeMode === 'custom') {
+      return viewRange.start !== persistedViewRange.start || viewRange.end !== persistedViewRange.end;
+    }
+    return false;
+  }, [rangeMode, persistedRangeMode, viewRange, persistedViewRange]);
+
+  const handleRangeChange = useCallback(
+    (field: 'start' | 'end', value: string) => {
+      setRangeMode('custom');
+      setViewRange((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    []
+  );
+
+  const applyCategoryChange = useCallback(
+    (nextCategory: string) => {
+      setEditingTask((prev) => {
+        if (!prev) {
+          return prev;
+        }
+
+        if (nextCategory === '學習與成長') {
+          return {
+            ...prev,
+            category: nextCategory,
+            startDate: '',
+            endDate: '',
+            progress: 0,
+          };
+        }
+
+        if (prev.category === '學習與成長' && nextCategory !== '學習與成長') {
+          const fallbackStart = prev.startDate || toInputDate(new Date());
+          const fallbackEnd = prev.endDate || toInputDate(new Date(Date.now() + 7 * msPerDay));
+          return {
+            ...prev,
+            category: nextCategory,
+            startDate: fallbackStart,
+            endDate: fallbackEnd,
+            progress: 0,
+          };
+        }
+
+        return {
+          ...prev,
+          category: nextCategory,
+        };
+      });
+    },
+    [msPerDay]
+  );
+
+  const handleAddCustomCategory = useCallback(() => {
+    const trimmed = newCategoryDraft.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    setCategoryOptions((prev) => {
+      if (prev.includes(trimmed)) {
+        return prev;
+      }
+      return [...prev, trimmed];
+    });
+    applyCategoryChange(trimmed);
+    setNewCategoryDraft('');
+  }, [newCategoryDraft, applyCategoryChange]);
+
+  const handleRemoveCustomCategory = useCallback(
+    (category: string) => {
+      if (!category || defaultCategoryOptions.includes(category)) {
+        return;
+      }
+
+      setCategoryOptions((prev) => prev.filter((option) => option !== category));
+      setEditingTask((prev) => {
+        if (prev && prev.category === category) {
+          return { ...prev, category: '' };
+        }
+        return prev;
+      });
+
+      const hasAffectedTasks = tasksRef.current.some((task) => task && task.category === category);
+      if (hasAffectedTasks) {
+        void updateTasks((prev) =>
+          prev.map((task) =>
+            task && task.category === category
+              ? {
+                  ...task,
+                  category: '',
+                }
+              : task
+          )
+        );
+      }
+    },
+    [defaultCategoryOptions, updateTasks]
+  );
+
+  const handleConfirmViewRange = useCallback(async () => {
+    if (!hasPendingRangeChanges || rangeError) {
+      return;
+    }
+
+    const targetMode = rangeMode === 'custom' ? 'custom' : 'auto';
+    const overrideRange =
+      targetMode === 'custom'
+        ? normalizeRange(viewRange, persistedViewRange)
+        : normalizeRange(autoRange);
+
+    try {
+      await persistWorkspace(tasksRef.current, {
+        rangeMode: targetMode,
+        viewRange: overrideRange,
+      });
+    } catch (error) {
+      console.error('[Frontend] Failed to persist view range', error);
+    }
+  }, [
+    hasPendingRangeChanges,
+    rangeError,
+    rangeMode,
+    viewRange,
+    persistedViewRange,
+    autoRange,
+    normalizeRange,
+    persistWorkspace,
+    tasksRef,
+  ]);
+
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayLabel = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}`;
+  const todayLocal = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const todayLabel = `${String(todayLocal.getMonth() + 1).padStart(2, '0')}/${String(todayLocal.getDate()).padStart(2, '0')}`;
   const totalDays = Math.max(1, Math.floor((timelineEnd - timelineStart) / msPerDay) + 1);
 
   // 響應式寬度計算
-  const containerPadding = 48; // 左右各 24px padding (px-6)
-  const cardPadding = 48; // 卡片內的 padding (p-6)
-  const safetyMargin = 40; // 額外安全邊距
-  const trackPaddingLeft = 60;
-  const trackPaddingRight = 60;
-  const totalReservedSpace = containerPadding + cardPadding + safetyMargin + trackPaddingLeft + trackPaddingRight;
-  const availableWidth = containerWidth - totalReservedSpace;
-  const calculatedDayWidth = availableWidth / totalDays;
-  const minDayWidth = 7; // 最小每日寬度，避免太擠
-  const maxDayWidth = 22; // 最大每日寬度，避免太寬
-  const dayWidth = Math.max(minDayWidth, Math.min(maxDayWidth, calculatedDayWidth));
-  const timelinePixelWidth = totalDays * dayWidth;
+  const trackPaddingLeft = 24;
+  const trackPaddingRight = 24;
+  const availableWidth = Math.max(containerWidth - (trackPaddingLeft + trackPaddingRight), 360);
+
+  const effectiveIntervals = totalDays > 1 ? totalDays - 1 : 1;
+  const baseIntervalWidth = availableWidth / effectiveIntervals;
+
+  let intervalWidth = baseIntervalWidth;
+  let minIntervalWidth = 12;
+  let maxIntervalWidth = 28;
+
+  if (totalDays <= 7) {
+    minIntervalWidth = 64;
+    maxIntervalWidth = 160;
+  } else if (totalDays <= 14) {
+    minIntervalWidth = 36;
+    maxIntervalWidth = 100;
+  } else if (totalDays <= 30) {
+    minIntervalWidth = 20;
+    maxIntervalWidth = 60;
+  }
+
+  intervalWidth = Math.max(minIntervalWidth, Math.min(maxIntervalWidth, intervalWidth));
+
+  if (totalDays <= 21) {
+    intervalWidth = Math.max(intervalWidth, baseIntervalWidth);
+  }
+
+  if (totalDays === 1) {
+    intervalWidth = Math.max(intervalWidth, availableWidth);
+  }
+
+  const timelinePixelWidth =
+    totalDays > 1 ? intervalWidth * (totalDays - 1) : Math.max(intervalWidth, availableWidth);
   const timelineTotalWidth = timelinePixelWidth;
 
   const addDays = (baseDate, days) => new Date(baseDate.getTime() + days * msPerDay);
@@ -689,6 +1070,37 @@ const GanttManager = () => {
       return { index, date };
     });
   }, [timelineStart, totalDays]);
+
+  const dayPositions = useMemo(() => {
+    if (totalDays <= 1) {
+      return [0];
+    }
+    return Array.from({ length: totalDays }, (_, index) => intervalWidth * index);
+  }, [totalDays, intervalWidth]);
+
+  const getDayStartPosition = useCallback(
+    (index: number) => {
+      if (totalDays <= 1) {
+        return 0;
+      }
+      const clamped = Math.max(0, Math.min(index, totalDays - 1));
+      return dayPositions[clamped] ?? 0;
+    },
+    [dayPositions, totalDays]
+  );
+
+  const getDayEndPosition = useCallback(
+    (index: number) => {
+      if (totalDays <= 1) {
+        return timelinePixelWidth;
+      }
+      if (index >= totalDays - 1) {
+        return timelinePixelWidth;
+      }
+      return dayPositions[index + 1] ?? timelinePixelWidth;
+    },
+    [dayPositions, totalDays, timelinePixelWidth]
+  );
 
   const monthDayFormatter = useMemo(
     () =>
@@ -725,65 +1137,87 @@ const GanttManager = () => {
       }
 
       const dayCount = Math.max(1, cursorIndex - startIndex);
+      const endIndex = Math.max(startIndex, cursorIndex - 1);
+      const startPos = getDayStartPosition(startIndex);
+      const endPos = getDayEndPosition(endIndex);
+      const width = Math.max(intervalWidth, endPos - startPos);
 
       segments.push({
         key: `${year}-${month + 1}`,
         text: `${year}年 ${month + 1}月`,
         startIndex,
         dayCount,
-        width: dayCount * dayWidth,
+        width,
       });
     }
 
     return segments;
-  }, [timelineDays, dayWidth]);
+  }, [timelineDays, getDayStartPosition, getDayEndPosition, intervalWidth]);
 
   const weekSegments = useMemo(() => {
     if (!timelineDays.length) {
       return [];
     }
 
-    const getWeekStartKey = (date) => {
+    const segments = [];
+    const firstDay = timelineDays[0].date;
+    const lastDay = timelineDays[timelineDays.length - 1].date;
+    const startTime = timelineStart.getTime();
+
+    const alignToMonday = (date) => {
+      const utc = date.getTime();
       const day = date.getUTCDay();
-      const diff = day === 0 ? -6 : 1 - day; // align weeks to Monday
-      const weekStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + diff));
-      return weekStart.toISOString().slice(0, 10);
+      const diff = (day + 7 - 1) % 7; // align to Monday
+      return new Date(utc - diff * msPerDay);
     };
 
-    const map = new Map();
+    const monthKeyForDate = (date) => `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
+    const weekCountsByMonth = new Map();
 
-    timelineDays.forEach(({ date, index }) => {
-      const key = getWeekStartKey(date);
-      if (!map.has(key)) {
-        map.set(key, {
-          key,
-          startIndex: index,
-          firstDate: date,
-          lastDate: date,
-          dayCount: 0,
-        });
-      }
-      const entry = map.get(key);
-      entry.dayCount += 1;
-      entry.lastDate = date;
-    });
+    let currentWeekStart = alignToMonday(firstDay);
+    let guard = 0;
 
-    const sorted = Array.from(map.values()).sort((a, b) => a.startIndex - b.startIndex);
-    let weekNumber = 1;
+    while (currentWeekStart <= lastDay && guard < 400) {
+      const currentWeekEnd = new Date(currentWeekStart.getTime() + 6 * msPerDay);
+      const segStart = currentWeekStart < firstDay ? firstDay : currentWeekStart;
+      const segEnd = currentWeekEnd > lastDay ? lastDay : currentWeekEnd;
 
-    return sorted.map((entry) => ({
-      key: `week-${entry.startIndex}`,
-      label: `第${weekNumber++}週 ${formatMonthDay(entry.firstDate)}-${formatMonthDay(entry.lastDate)}`,
-      startIndex: entry.startIndex,
-      dayCount: entry.dayCount,
-      width: entry.dayCount * dayWidth,
-    }));
-  }, [timelineDays, dayWidth, formatMonthDay]);
+      let startIndex = Math.floor((segStart.getTime() - startTime) / msPerDay);
+      let endIndex = Math.floor((segEnd.getTime() - startTime) / msPerDay);
+      if (startIndex < 0) startIndex = 0;
+      if (endIndex > timelineDays.length - 1) endIndex = timelineDays.length - 1;
 
-  const todayIndexRaw = Math.floor((today - timelineStart) / msPerDay);
-  const todayIndexClamped = Math.max(0, Math.min(totalDays - 1, todayIndexRaw));
-  const showTodayMarker = todayIndexRaw >= 0 && todayIndexRaw < totalDays;
-  const todayColumnLeft = todayIndexClamped * dayWidth;
+      const dayCount = Math.max(1, endIndex - startIndex + 1);
+      const startPos = getDayStartPosition(startIndex);
+      const endPos = getDayEndPosition(endIndex);
+      const width = Math.max(intervalWidth, endPos - startPos);
+
+      const monthKey = monthKeyForDate(segStart);
+      const nextWeekNumber = (weekCountsByMonth.get(monthKey) || 0) + 1;
+      weekCountsByMonth.set(monthKey, nextWeekNumber);
+
+      segments.push({
+        key: `week-${segStart.toISOString()}`,
+        weekNumber: nextWeekNumber,
+        startDate: segStart,
+        endDate: segEnd,
+        startIndex,
+        dayCount,
+        width,
+        isPartial: dayCount < 7,
+      });
+
+      currentWeekStart = new Date(currentWeekEnd.getTime() + msPerDay);
+      guard += 1;
+    }
+
+    return segments;
+  }, [timelineDays, intervalWidth, timelineStart, getDayStartPosition, getDayEndPosition]);
+
+  const todayExactIndex = (todayUtc.getTime() - timelineStart.getTime()) / msPerDay;
+  const showTodayMarker = todayExactIndex >= 0 && todayExactIndex <= totalDays - 1;
+  const clampedTodayIndex = Math.min(Math.max(todayExactIndex, 0), totalDays - 1);
+  const todayColumnLeft = clampedTodayIndex * intervalWidth;
 
   const timelineScrollWidth = timelinePixelWidth + trackPaddingLeft + trackPaddingRight;
 
@@ -793,6 +1227,152 @@ const GanttManager = () => {
     }),
     [timelineScrollWidth]
   );
+
+  const clampedThumbWidthRatio = useMemo(
+    () => Math.max(0, Math.min(scrollIndicator.thumbWidthRatio, 1)),
+    [scrollIndicator.thumbWidthRatio]
+  );
+
+  const clampedThumbLeftRatio = useMemo(
+    () => Math.max(0, Math.min(scrollIndicator.thumbLeftRatio, 1)),
+    [scrollIndicator.thumbLeftRatio]
+  );
+
+  useEffect(() => {
+    const element = timelineScrollRef.current;
+    if (!element) {
+      return;
+    }
+
+    const updateScrollIndicators = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = element;
+      const maxScrollLeft = Math.max(scrollWidth - clientWidth, 0);
+      const left = scrollLeft > 2;
+      const right = maxScrollLeft - scrollLeft > 2;
+      const trackWidth = Math.max(clientWidth - 24, 0);
+      const isOverflow = scrollWidth - clientWidth > 1;
+
+      let thumbWidthRatio = 1;
+      let thumbLeftRatio = 0;
+
+      if (isOverflow && trackWidth > 0) {
+        const visibleRatio = clientWidth / scrollWidth;
+        const minThumbRatio = Math.min(32 / trackWidth, 0.95);
+        thumbWidthRatio = Math.min(1, Math.max(visibleRatio, minThumbRatio));
+        const maxThumbLeftRatio = Math.max(1 - thumbWidthRatio, 0);
+        const scrollRatio = maxScrollLeft > 0 ? scrollLeft / maxScrollLeft : 0;
+        thumbLeftRatio = maxThumbLeftRatio * scrollRatio;
+      }
+
+      setScrollIndicator({
+        left,
+        right,
+        thumbWidthRatio,
+        thumbLeftRatio,
+        isOverflow,
+      });
+    };
+
+    updateScrollIndicators();
+    element.addEventListener('scroll', updateScrollIndicators, { passive: true });
+    window.addEventListener('resize', updateScrollIndicators);
+    return () => {
+      element.removeEventListener('scroll', updateScrollIndicators);
+      window.removeEventListener('resize', updateScrollIndicators);
+    };
+  }, [timelineScrollWidth, executionTasks.length]);
+
+  const handleScrollTrackPointerDown = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (!scrollIndicator.isOverflow) {
+        return;
+      }
+
+      const scrollElement = timelineScrollRef.current;
+      const trackElement = topScrollTrackRef.current;
+
+      if (!scrollElement || !trackElement) {
+        return;
+      }
+
+      const scrollWidth = scrollElement.scrollWidth;
+      const clientWidth = scrollElement.clientWidth;
+      const maxScrollLeft = Math.max(scrollWidth - clientWidth, 0);
+      const rect = trackElement.getBoundingClientRect();
+      const trackWidth = rect.width;
+
+      if (maxScrollLeft <= 0 || trackWidth <= 0) {
+        return;
+      }
+
+      const thumbWidth = trackWidth * clampedThumbWidthRatio;
+      const maxThumbLeft = Math.max(trackWidth - thumbWidth, 0);
+      const currentThumbLeft = maxThumbLeft > 0 ? (scrollElement.scrollLeft / maxScrollLeft) * maxThumbLeft : 0;
+      const pointerPosition = event.clientX - rect.left;
+      const isInsideThumb = pointerPosition >= currentThumbLeft && pointerPosition <= currentThumbLeft + thumbWidth;
+
+      let desiredThumbLeft = currentThumbLeft;
+
+      if (!isInsideThumb) {
+        desiredThumbLeft = Math.max(0, Math.min(pointerPosition - thumbWidth / 2, maxThumbLeft));
+        const newScrollLeft = maxThumbLeft > 0 ? (desiredThumbLeft / maxThumbLeft) * maxScrollLeft : 0;
+        scrollElement.scrollLeft = newScrollLeft;
+      }
+
+      thumbDragState.current = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startThumbLeft: desiredThumbLeft,
+        maxThumbLeft,
+        maxScrollLeft,
+      };
+
+      event.currentTarget.setPointerCapture(event.pointerId);
+      event.preventDefault();
+    },
+    [clampedThumbWidthRatio, scrollIndicator.isOverflow]
+  );
+
+  const handleScrollTrackPointerMove = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    const state = thumbDragState.current;
+    if (state.pointerId !== event.pointerId || state.maxThumbLeft <= 0 || state.maxScrollLeft <= 0) {
+      return;
+    }
+
+    const scrollElement = timelineScrollRef.current;
+    if (!scrollElement) {
+      return;
+    }
+
+    const delta = event.clientX - state.startX;
+    const newThumbLeft = Math.max(0, Math.min(state.startThumbLeft + delta, state.maxThumbLeft));
+    const newScrollLeft = (newThumbLeft / state.maxThumbLeft) * state.maxScrollLeft;
+    scrollElement.scrollLeft = newScrollLeft;
+
+    event.preventDefault();
+  }, []);
+
+  const handleScrollTrackPointerUp = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (thumbDragState.current.pointerId !== event.pointerId) {
+      return;
+    }
+
+    thumbDragState.current = {
+      pointerId: null,
+      startX: 0,
+      startThumbLeft: 0,
+      maxThumbLeft: 0,
+      maxScrollLeft: 0,
+    };
+
+    try {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+    } catch {
+      // ignore release errors
+    }
+  }, []);
 
   const timelineInnerStyle = useMemo(
     () => ({
@@ -804,11 +1384,11 @@ const GanttManager = () => {
 
   const dayGridBackground = useMemo(
     () => ({
-      backgroundImage: `repeating-linear-gradient(to right, transparent, transparent ${dayWidth - 1}px, rgba(226, 232, 240, 0.8) ${dayWidth - 1}px, rgba(226, 232, 240, 0.8) ${dayWidth}px)`,
-      backgroundSize: `${dayWidth}px 100%`,
+      backgroundImage: `repeating-linear-gradient(to right, transparent, transparent ${intervalWidth - 1}px, rgba(226, 232, 240, 0.8) ${intervalWidth - 1}px, rgba(226, 232, 240, 0.8) ${intervalWidth}px)`,
+      backgroundSize: `${intervalWidth}px 100%`,
       backgroundRepeat: 'repeat',
     }),
-    [dayWidth]
+    [intervalWidth]
   );
 
   const trackBackgroundStyle = {
@@ -823,8 +1403,8 @@ const GanttManager = () => {
     () =>
       weekSegments
         .filter((week) => week.startIndex > 0)
-        .map((week) => week.startIndex * dayWidth + trackPaddingLeft),
-    [weekSegments, dayWidth, trackPaddingLeft]
+        .map((week) => getDayStartPosition(week.startIndex) + trackPaddingLeft),
+    [weekSegments, getDayStartPosition, trackPaddingLeft]
   );
 
   const renderTimelineRow = (task) => {
@@ -840,14 +1420,15 @@ const GanttManager = () => {
     const actualWidth = Math.max(width, minBarWidth);
     const barLeft = `${left + trackPaddingLeft}px`;
     const barWidth = `${actualWidth}px`;
-    const todayStripeWidth = `${dayWidth}px`;
+    const todayStripeWidth = `${intervalWidth}px`;
 
     // 判斷是否為短任務（3天以內）
     const isShortTask = taskDays <= 3;
 
     const maxMaterialsToShow = 3;
-    const visibleMaterials = task.materials?.slice(0, maxMaterialsToShow) || [];
-    const remainingMaterials = (task.materials?.length || 0) - maxMaterialsToShow;
+    const materialsList = Array.isArray(task.materials) ? task.materials : [];
+    const visibleMaterials = materialsList.slice(0, maxMaterialsToShow);
+    const remainingMaterials = Math.max(materialsList.length - maxMaterialsToShow, 0);
 
     return (
       <div
@@ -870,8 +1451,11 @@ const GanttManager = () => {
               <div className="font-medium text-gray-800 text-sm">
                 {task.name}
               </div>
-              <span className={`${categoryColor} text-white text-xs px-2 py-0.5 rounded-full`}>
-                {task.category}
+              <span
+                className="text-white text-xs px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: categoryColor }}
+              >
+                {task.category || '未分類'}
               </span>
               <span className="text-xs text-gray-500">
                 {getStatusText(task.status)} · {progressValue}%
@@ -972,8 +1556,8 @@ const GanttManager = () => {
           </div>
 
           <div
-            className={`${categoryColor} absolute top-5 h-9 rounded-full shadow-sm flex items-center justify-center text-white text-xs font-semibold`}
-            style={{ left: barLeft, width: barWidth }}
+            className="absolute top-5 h-9 rounded-full shadow-sm flex items-center justify-center text-white text-xs font-semibold"
+            style={{ left: barLeft, width: barWidth, backgroundColor: categoryColor }}
           >
             <span className="relative z-10">{progressValue}%</span>
             <div className="absolute inset-x-4 bottom-1.5 h-1.5 bg-white/50 rounded-full overflow-hidden">
@@ -1014,7 +1598,7 @@ const GanttManager = () => {
     const end = parseDate(endDate);
 
     if (!start || !end) {
-      return { left: 0, width: dayWidth };
+      return { left: 0, width: intervalWidth, startIndex: 0, endIndex: 0 };
     }
 
     const startOffset = Math.floor((start - timelineStart) / msPerDay);
@@ -1022,11 +1606,13 @@ const GanttManager = () => {
 
     const clampedStart = Math.max(0, Math.min(totalDays - 1, startOffset));
     const clampedEnd = Math.max(clampedStart, Math.min(totalDays - 1, endOffset));
-    const widthDays = Math.max(1, clampedEnd - clampedStart + 1);
+    const startPos = getDayStartPosition(clampedStart);
+    const endPos = getDayEndPosition(clampedEnd);
+    const width = Math.max(intervalWidth, endPos - startPos);
 
     return {
-      left: clampedStart * dayWidth,
-      width: widthDays * dayWidth,
+      left: startPos,
+      width,
       startIndex: clampedStart,
       endIndex: clampedEnd,
     };
@@ -1051,13 +1637,8 @@ const GanttManager = () => {
   };
 
   const getCategoryColor = (category) => {
-    if (category === 'AI賦能') return 'bg-purple-500';
-    if (category === '流程優化') return 'bg-blue-500';
-    if (category === '產品行銷') return 'bg-green-500';
-    if (category === '品牌行銷') return 'bg-yellow-500';
-    if (category === '客戶開發') return 'bg-red-500';
-    if (category === '學習與成長') return 'bg-indigo-500';
-    return 'bg-gray-500';
+    if (!category) return '#94a3b8';
+    return categoryColorMap.get(category) ?? '#94a3b8';
   };
 
   const getMaterialIcon = (type) => {
@@ -1093,7 +1674,7 @@ const GanttManager = () => {
     let normalizedTask = {
       ...editingTask,
       name: trimmedName,
-      description: editingTask.description?.trim() ?? '',
+      description: editingTask && editingTask.description ? editingTask.description.trim() : '',
     };
 
     if (normalizedTask.category === '學習與成長') {
@@ -1274,37 +1855,76 @@ const GanttManager = () => {
     setDragOverTaskId(null);
   };
 
-  const categoryMeta = [
-    { key: 'AI賦能', label: 'AI賦能', color: '#a855f7' },
-    { key: '流程優化', label: '流程優化', color: '#3b82f6' },
-    { key: '產品行銷', label: '產品行銷', color: '#22c55e' },
-    { key: '品牌行銷', label: '品牌行銷', color: '#eab308' },
-    { key: '客戶開發', label: '客戶開發', color: '#ef4444' },
-  ];
+  const stats = useMemo(() => {
+    const snapshot = {
+      total: dashboardTasks.length,
+      completed: 0,
+      inProgress: 0,
+      pending: 0,
+      unpublished: 0,
+      blocked: 0,
+      other: 0,
+    };
+    dashboardTasks.forEach((task) => {
+      switch (task?.status) {
+        case 'completed':
+          snapshot.completed += 1;
+          break;
+        case 'in-progress':
+          snapshot.inProgress += 1;
+          break;
+        case 'pending':
+          snapshot.pending += 1;
+          break;
+        case 'unpublished':
+          snapshot.unpublished += 1;
+          break;
+        case 'blocked':
+          snapshot.blocked += 1;
+          break;
+        default:
+          snapshot.other += 1;
+          break;
+      }
+    });
+    return snapshot;
+  }, [dashboardTasks]);
 
-  const stats = {
-    total: executionTasks.length,
-    completed: executionTasks.filter(t => t.status === 'completed').length,
-    inProgress: executionTasks.filter(t => t.status === 'in-progress').length,
-    pending: executionTasks.filter(t => t.status === 'pending').length,
-    unpublished: executionTasks.filter(t => t.status === 'unpublished').length,
-    blocked: executionTasks.filter(t => t.status === 'blocked').length,
-  };
+  const chartTotal = dashboardTasks.length;
 
-  const categoryStats = categoryMeta.reduce((acc, cat) => {
-    acc[cat.key] = executionTasks.filter(t => t.category === cat.key).length;
-    return acc;
-  }, {});
+  const categoryOrder = useMemo(() => {
+    const order: string[] = [];
+    categoryOptions.forEach((option) => {
+      if (option && !order.includes(option)) {
+        order.push(option);
+      }
+    });
+    dashboardTasks.forEach((task) => {
+      const key = task?.category || '';
+      if (!key && !order.includes('')) {
+        order.push('');
+      } else if (key && !order.includes(key)) {
+        order.push(key);
+      }
+    });
+    return order;
+  }, [categoryOptions, dashboardTasks]);
 
-  const chartTotal = executionTasks.length;
-
-  const chartSegments = categoryMeta
-    .map((meta) => {
-      const count = categoryStats[meta.key] || 0;
+  const chartSegments = categoryOrder
+    .map((key) => {
+      const count = dashboardTasks.filter((task) => (task?.category || '') === key).length;
       const percent = chartTotal > 0 ? (count / chartTotal) * 100 : 0;
-      return { ...meta, count, percent };
+      const label = key || '未分類';
+      const color = key ? categoryColorMap.get(key) ?? '#94a3b8' : '#94a3b8';
+      return {
+        key: key || 'uncategorized',
+        label,
+        color,
+        count,
+        percent,
+      };
     })
-    .filter(segment => segment.count > 0);
+    .filter((segment) => segment.count > 0);
 
   const donutGradient = chartTotal > 0
     ? (() => {
@@ -1320,8 +1940,10 @@ const GanttManager = () => {
       })()
     : '#d1d5db 0 100%';
 
-  const overallProgress = executionTasks.length
-    ? Math.round(executionTasks.reduce((sum, task) => sum + clampProgress(task.progress), 0) / executionTasks.length)
+  const overallProgress = dashboardTasks.length
+    ? Math.round(
+        dashboardTasks.reduce((sum, task) => sum + clampProgress(task.progress ?? 0), 0) / dashboardTasks.length
+      )
     : 0;
 
   const rainbowTitleSegments = useMemo(() => ([
@@ -1338,8 +1960,19 @@ const GanttManager = () => {
 
   const handleProjectTitleCommit = () => {
     const trimmed = projectTitleDraft.trim();
-    setProjectTitle(trimmed || '未命名專案');
+    const nextTitle = trimmed || '未命名專案';
+    const titleChanged = nextTitle !== projectTitle;
+
+    setProjectTitle(nextTitle);
+    setProjectTitleDraft(nextTitle);
     setIsTitleEditing(false);
+    projectTitleRef.current = nextTitle;
+
+    if (titleChanged) {
+      void persistWorkspace(tasksRef.current, { projectTitle: nextTitle }).catch((error) => {
+        console.error('[Frontend] Failed to persist project title', error);
+      });
+    }
   };
 
   const handleProjectTitleCancel = () => {
@@ -1349,137 +1982,213 @@ const GanttManager = () => {
 
   return (
     <div ref={appRef} className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Top Navigation Bar - SaaS Style */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="w-full px-4 sm:px-6 py-3">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-            {/* Left: Logo & Project Info */}
-            <div className="flex flex-wrap items-center gap-4 min-w-0">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl border border-purple-200/60 overflow-hidden shadow-md">
-                  <img
-                    src={catAvatar}
-                    alt="Gantt Mascot"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {isTitleEditing ? (
-                      <input
-                        value={projectTitleDraft}
-                        onChange={(e) => setProjectTitleDraft(e.target.value)}
-                        onBlur={handleProjectTitleCommit}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            handleProjectTitleCommit();
-                          } else if (e.key === 'Escape') {
-                            e.preventDefault();
-                            handleProjectTitleCancel();
-                          }
-                        }}
-                        autoFocus
-                        className="text-base font-semibold text-gray-900 border border-blue-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
-                      />
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <h1 className="text-base font-semibold text-gray-900 truncate max-w-xs sm:max-w-md">{projectTitle}</h1>
+      {showNavigation && (
+        <div className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+          <div className="w-full px-4 sm:px-6 py-3">
+            <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+              <div className="flex flex-wrap items-center gap-4 min-w-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl border border-purple-200/60 overflow-hidden shadow-md">
+                    <img
+                      src={catAvatar}
+                      alt="Gantt Mascot"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-gray-600"
+                        style={{ border: `1px solid ${workspaceColor}33` }}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shadow-sm"
+                          style={{ backgroundColor: workspaceColor }}
+                        ></span>
+                        {workspaceDisplayName}
+                      </span>
+                      {workspaceMeta?.id && workspaceMeta.id !== DEFAULT_WORKSPACE_ID && (
+                        <span className="text-[11px] text-gray-400">ID: {workspaceMeta.id}</span>
+                      )}
+                      {workspaceOwner && (
+                        <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                          <Users className="w-3.5 h-3.5 opacity-60" />
+                          <span className="truncate max-w-[120px]">{workspaceOwner}</span>
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap mt-1">
+                      {isTitleEditing ? (
+                        <input
+                          value={projectTitleDraft}
+                          onChange={(e) => setProjectTitleDraft(e.target.value)}
+                          onBlur={handleProjectTitleCommit}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleProjectTitleCommit();
+                            } else if (e.key === 'Escape') {
+                              e.preventDefault();
+                              handleProjectTitleCancel();
+                            }
+                          }}
+                          autoFocus
+                          className="text-base font-semibold text-gray-900 border border-blue-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                        />
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <h1 className="text-base font-semibold text-gray-900 truncate max-w-xs sm:max-w-md">
+                            {projectTitle}
+                          </h1>
+                          <button
+                            type="button"
+                            onClick={() => setIsTitleEditing(true)}
+                            className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
+                            title="編輯專案標題"
+                            data-ignore-pdf="true"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1 text-xs text-gray-500 mt-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                          <input
+                            type="date"
+                            value={viewRange.start}
+                            max={viewRange.end || undefined}
+                            onChange={(e) => handleRangeChange('start', e.target.value)}
+                            className="h-7 rounded border border-gray-200 px-2 text-xs text-gray-700 shadow-inner focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          />
+                          <span className="text-gray-400">~</span>
+                          <input
+                            type="date"
+                            value={viewRange.end}
+                            min={viewRange.start || undefined}
+                            onChange={(e) => handleRangeChange('end', e.target.value)}
+                            className="h-7 rounded border border-gray-200 px-2 text-xs text-gray-700 shadow-inner focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400"
+                          />
+                        </span>
                         <button
                           type="button"
-                          onClick={() => setIsTitleEditing(true)}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
-                          title="編輯專案標題"
-                          data-ignore-pdf="true"
+                          onClick={handleConfirmViewRange}
+                          disabled={!hasPendingRangeChanges || Boolean(rangeError) || isSyncing}
+                          className={`inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition ${
+                            !hasPendingRangeChanges || rangeError
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-blue-600 text-white hover:bg-blue-700'
+                          } ${isSyncing ? 'opacity-70' : ''}`}
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          {isSyncing && hasPendingRangeChanges ? '儲存中...' : '確定'}
                         </button>
+                        {hasPendingRangeChanges && !rangeError && (
+                          <span className="text-xs text-orange-500">尚未儲存</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5 flex-wrap">
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span>2025/09/01 - 2025/11/30</span>
-                    <span>·</span>
-                    <span className={`inline-flex items-center gap-1 ${apiAvailable ? 'text-green-600' : 'text-gray-400'}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${apiAvailable ? 'bg-green-500' : 'bg-gray-400'}`}></span>
-                      {apiAvailable ? '已同步' : '離線'}
-                    </span>
-                    {isSyncing && <span className="text-blue-600">同步中...</span>}
-                    {syncError && (
-                      <span className="inline-flex items-center gap-1 text-red-600 bg-red-50 px-2 py-1 rounded">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        同步失敗: {syncError}
-                      </span>
-                    )}
+                      {rangeError && (
+                        <div className="text-xs text-red-500">{rangeError}</div>
+                      )}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className={`inline-flex items-center gap-1 ${apiAvailable ? 'text-green-600' : 'text-gray-400'}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${apiAvailable ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+                          {apiAvailable ? '已同步' : '離線'}
+                        </span>
+                        {isSyncing && <span className="text-blue-600">同步中...</span>}
+                        {syncError && (
+                          <span className="inline-flex items-center gap-1 text-red-600 bg-red-50 px-2 py-1 rounded">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            同步失敗: {syncError}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Center: Project Tagline */}
-            <div className="hidden md:flex flex-col items-center flex-1 text-center">
-              <div className="text-base font-semibold tracking-wide drop-shadow-sm leading-tight flex items-center gap-1">
-                <span className="text-lg">😎</span>
-                <span>
-                  {rainbowTitleSegments.map((segment, index) => (
-                    <span key={`rainbow-${segment.char}-${index}`} style={{ color: segment.color }}>
-                      {segment.char}
-                    </span>
-                  ))}
-                </span>
-                <span className="ml-1 text-gray-600/80">v1.1</span>
+              <div className="hidden md:flex md:absolute md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 flex-col items-center text-center">
+                <div className="text-base font-semibold tracking-wide drop-shadow-sm leading-tight flex items-center gap-1">
+                  <span className="text-lg">😎</span>
+                  <span>
+                    {rainbowTitleSegments.map((segment, index) => (
+                      <span key={`rainbow-${segment.char}-${index}`} style={{ color: segment.color }}>
+                        {segment.char}
+                      </span>
+                    ))}
+                  </span>
+                  <span className="ml-1 text-gray-600/80">v1.1</span>
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5 tracking-wide">
+                  by Janus_澈行
+                </div>
               </div>
-              <div className="text-[11px] text-gray-400 mt-0.5 tracking-wide">
-                by Janus_澈行
-              </div>
-            </div>
 
-            {/* Right: Actions & User */}
-            <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto justify-end">
-              <button
-                onClick={async () => {
-                  if (!appRef.current) return;
-                  const loader = document.createElement('div');
-                  loader.textContent = '生成 PDF 中…';
-                  loader.className = 'fixed top-6 right-6 z-[1000] px-3 py-1.5 text-sm font-medium text-white bg-gray-800/80 rounded-lg shadow';
-                  loader.dataset.ignorePdf = 'true';
-                  document.body.appendChild(loader);
-
-                  try {
-                    const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-                      import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm'),
-                      import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm'),
-                    ]);
-
-                    const canvas = await html2canvas(appRef.current, {
-                      scale: Math.max(2, window.devicePixelRatio || 1),
-                      useCORS: true,
-                      backgroundColor: getComputedStyle(document.body).backgroundColor || '#f8fafc',
-                      ignoreElements: (element) => element.dataset && element.dataset.ignorePdf === 'true',
-                    });
-
-                    const imgData = canvas.toDataURL('image/png');
-                    const pdf = new jsPDF({
-                      orientation: canvas.width >= canvas.height ? 'landscape' : 'portrait',
-                      unit: 'px',
-                      format: [canvas.width, canvas.height],
-                    });
-                    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                    pdf.save('gantt-dashboard.pdf');
-                  } catch (error) {
-                    console.error('PDF 匯出失敗', error);
-                    alert('匯出 PDF 失敗，請稍後再試。');
-                  } finally {
-                    if (loader.parentNode) {
-                      loader.parentNode.removeChild(loader);
+              <div className="flex items-center gap-3 flex-shrink-0 w-full sm:w-auto justify-end">
+                <button
+                  onClick={() => {
+                    if (onOpenManager) {
+                      onOpenManager();
+                    } else if (typeof window !== 'undefined') {
+                      window.location.assign('/management');
                     }
-                  }
-                }}
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg shadow hover:shadow-md transition-colors"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  管理器
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!appRef.current) return;
+
+                    const loader = document.createElement('div');
+                    loader.textContent = '生成 PDF 中…';
+                    loader.className =
+                      'fixed top-6 right-6 z-[1000] px-3 py-1.5 text-sm font-medium text-white bg-gray-800/80 rounded-lg shadow';
+                    loader.dataset.ignorePdf = 'true';
+                    document.body.appendChild(loader);
+
+                    try {
+                      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+                        import('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm'),
+                        import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm'),
+                        document.fonts?.ready?.catch(() => undefined) ?? Promise.resolve(),
+                      ]);
+
+                      const scale = Math.min(3, Math.max(2, window.devicePixelRatio || 1));
+
+                      const canvas = await html2canvas(appRef.current, {
+                        scale,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        ignoreElements: (element) => element.dataset && element.dataset.ignorePdf === 'true',
+                        letterRendering: true,
+                      });
+
+                      const imgData = canvas.toDataURL('image/png', 1);
+                      const orientation = canvas.width >= canvas.height ? 'landscape' : 'portrait';
+                      const pdf = new jsPDF({
+                        orientation,
+                        unit: 'px',
+                        format: [canvas.width, canvas.height],
+                      });
+
+                      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height, undefined, 'FAST');
+                      pdf.save('gantt-dashboard.pdf');
+                    } catch (error) {
+                      console.error('PDF 匯出失敗', error);
+                      alert('匯出 PDF 失敗，請稍後再試。');
+                    } finally {
+                      if (loader.parentNode) {
+                        loader.parentNode.removeChild(loader);
+                      }
+                    }
+                  }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                 title="匯出為 PDF"
               >
@@ -1497,8 +2206,9 @@ const GanttManager = () => {
           </div>
         </div>
       </div>
-
-      <div className="w-full px-4 sm:px-6 py-6">
+      )}
+      
+      <div className={`w-full px-4 sm:px-6 ${showNavigation ? 'py-6' : 'pt-8 pb-6'}`}>
         {/* Stats Card */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           {/* Stats Dashboard */}
@@ -1520,7 +2230,7 @@ const GanttManager = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 w-full space-y-6">
+                <div ref={timelineViewportRef} className="flex-1 w-full space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                       <p className="text-sm text-gray-500">總任務數</p>
@@ -1539,8 +2249,13 @@ const GanttManager = () => {
                         </span>
                         <span className="inline-flex items-center gap-1 text-sm text-gray-600">
                           <span className="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
-                          未完成 {stats.pending + stats.unpublished + stats.blocked}
+                          未完成 {stats.pending + stats.unpublished + stats.blocked + stats.other}
                         </span>
+                        {stats.other > 0 && (
+                          <span className="inline-flex items-center gap-1 text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                            其他 {stats.other}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1597,62 +2312,104 @@ const GanttManager = () => {
               尚未建立任務。點選「新增任務」建立第一個任務項目。
             </div>
           ) : (
-            <div className="-mx-4 overflow-x-auto pb-4 sm:mx-0">
+            <div
+              className="relative -mx-4 overflow-x-auto pb-6 sm:mx-0"
+              ref={timelineScrollRef}
+            >
+              {scrollIndicator.isOverflow && (
+                <>
+                  {scrollIndicator.left && (
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-white via-white/60 to-transparent" />
+                  )}
+                  {scrollIndicator.right && (
+                    <div className="pointer-events-none absolute inset-y-0 right-0 w-6 bg-gradient-to-l from-white via-white/60 to-transparent" />
+                  )}
+                </>
+              )}
               <div style={timelineOuterStyle}>
                 <div className="space-y-6" style={timelineInnerStyle}>
-                  <div className="sticky top-[16px] sm:top-[16px] lg:top-[16px] z-30 space-y-2 pb-4 relative">
-                    {showTodayMarker && (
-                      <div
-                        className="pointer-events-none absolute inset-y-0 z-0"
-                        style={{ left: `${todayMarkerLeft}px`, width: `${dayWidth}px` }}
-                    >
-                      <div className="absolute inset-0 bg-red-500/10"></div>
-                      <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-red-500"></div>
-                      <div className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full bg-red-500 px-2 py-1 text-xs text-white shadow">
-                        今天 {todayLabel}
-                      </div>
-                    </div>
-                  )}
-
-                  <div
-                    className="relative rounded-lg border border-slate-200 bg-slate-50/90 text-xs font-semibold text-gray-700 overflow-hidden shadow-sm backdrop-blur"
-                    style={{
-                      width: `${timelineScrollWidth}px`,
-                      minWidth: `${timelineScrollWidth}px`
-                    }}
-                  >
-                    <div className="flex" style={{ marginLeft: `${trackPaddingLeft}px` }}>
-                      {monthSegments.map((month, index) => (
+                  <div className="sticky top-[16px] sm:top-[16px] lg:top-[16px] z-30 space-y-3 pb-4">
+                    <div className="relative">
+                      {showTodayMarker && (
                         <div
-                          key={`month-${month.key}-${index}`}
-                          className="flex items-center justify-center border-r border-slate-200 last:border-r-0 px-3 py-2 flex-shrink-0"
-                          style={{ width: `${month.width}px`, minWidth: `${month.width}px` }}
+                          className="pointer-events-none absolute inset-y-0 z-0"
+                          style={{ left: `${todayMarkerLeft}px`, width: `${intervalWidth}px` }}
                         >
-                          {month.text}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div
-                    className="relative rounded-lg border border-slate-200 bg-white text-xs text-gray-500 overflow-hidden shadow-sm backdrop-blur"
-                    style={{
-                      width: `${timelineScrollWidth}px`,
-                      minWidth: `${timelineScrollWidth}px`
-                    }}
-                  >
-                    <div className="flex" style={{ marginLeft: `${trackPaddingLeft}px` }}>
-                      {weekSegments.map((week) => (
-                        <div
-                          key={week.key}
-                          className="flex items-center justify-center border-r border-slate-200 last:border-r-0 px-2 py-1.5 flex-shrink-0"
-                          style={{ width: `${week.width}px`, minWidth: `${week.width}px` }}
-                        >
-                            {week.label}
+                          <div className="absolute inset-0 bg-red-500/10"></div>
+                          <div className="absolute inset-y-0 left-1/2 w-[2px] -translate-x-1/2 bg-red-500"></div>
+                          <div className="absolute -top-9 left-1/2 -translate-x-1/2 rounded-full bg-red-500 px-2 py-1 text-xs text-white shadow">
+                            今天 {todayLabel}
                           </div>
-                        ))}
+                        </div>
+                      )}
+
+                      <div
+                        className="relative rounded-lg border border-slate-200 bg-slate-50/90 text-xs font-semibold text-gray-700 overflow-hidden shadow-sm backdrop-blur"
+                        style={{
+                          width: `${timelineScrollWidth}px`,
+                          minWidth: `${timelineScrollWidth}px`,
+                        }}
+                      >
+                        <div className="flex" style={{ marginLeft: `${trackPaddingLeft}px` }}>
+                          {monthSegments.map((month, index) => (
+                            <div
+                              key={`month-${month.key}-${index}`}
+                              className="flex items-center justify-center border-r border-slate-200 last:border-r-0 px-3 py-2 flex-shrink-0"
+                              style={{ width: `${month.width}px`, minWidth: `${month.width}px` }}
+                            >
+                              {month.text}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div
+                        className="relative mt-2 rounded-lg border border-slate-200 bg-white text-xs text-gray-500 overflow-hidden shadow-sm backdrop-blur"
+                        style={{
+                          width: `${timelineScrollWidth}px`,
+                          minWidth: `${timelineScrollWidth}px`,
+                        }}
+                      >
+                        <div className="flex" style={{ marginLeft: `${trackPaddingLeft}px` }}>
+                          {weekSegments.map((week) => {
+                            const labelPrefix = `第${week.weekNumber}週`;
+                            return (
+                              <div
+                                key={week.key}
+                                className="flex flex-col items-center justify-center border-r border-slate-200 last:border-r-0 px-2 py-1.5 flex-shrink-0 text-xs leading-tight text-gray-600"
+                                style={{ width: `${week.width}px`, minWidth: `${week.width}px` }}
+                              >
+                                <span className="font-medium">{labelPrefix}</span>
+                                <span className="text-gray-500">
+                                  {formatMonthDay(week.startDate)}-{formatMonthDay(week.endDate)}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
+
+                    {scrollIndicator.isOverflow && (
+                      <div className="px-4 sm:px-6">
+                        <div
+                          ref={topScrollTrackRef}
+                          className="relative h-1.5 rounded-full bg-blue-100 cursor-pointer"
+                          onPointerDown={handleScrollTrackPointerDown}
+                          onPointerMove={handleScrollTrackPointerMove}
+                          onPointerUp={handleScrollTrackPointerUp}
+                          onPointerCancel={handleScrollTrackPointerUp}
+                        >
+                          <div
+                            className="absolute inset-y-[2px] rounded-full bg-blue-400 transition-all duration-150"
+                            style={{
+                              width: `${clampedThumbWidthRatio * 100}%`,
+                              left: `${clampedThumbLeftRatio * 100}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="relative space-y-6" style={timelineInnerStyle}>
@@ -1684,8 +2441,9 @@ const GanttManager = () => {
             <div className="space-y-3">
               {learningTasks.map((task) => {
                 const maxMaterialsToShow = 3;
-                const visibleMaterials = task.materials?.slice(0, maxMaterialsToShow) || [];
-                const remainingMaterials = (task.materials?.length || 0) - maxMaterialsToShow;
+                const materialsList = Array.isArray(task.materials) ? task.materials : [];
+                const visibleMaterials = materialsList.slice(0, maxMaterialsToShow);
+                const remainingMaterials = Math.max(materialsList.length - maxMaterialsToShow, 0);
 
                 return (
                   <div
@@ -1851,7 +2609,7 @@ const GanttManager = () => {
                     <label className="block text-sm font-medium mb-1">狀態</label>
                     <select
                       value={editingTask.status}
-                      onChange={(e) => setEditingTask({...editingTask, status: e.target.value})}
+                      onChange={(e) => setEditingTask({ ...editingTask, status: e.target.value })}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="pending">待辦</option>
@@ -1863,41 +2621,51 @@ const GanttManager = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">分類</label>
-                    <select
-                      value={editingTask.category}
-                      onChange={(e) => {
-                        const nextCategory = e.target.value;
-                        if (nextCategory === '學習與成長') {
-                          setEditingTask({
-                            ...editingTask,
-                            category: nextCategory,
-                            startDate: '',
-                            endDate: '',
-                            progress: 0,
-                          });
-                        } else if (editingTask.category === '學習與成長') {
-                          const fallbackStart = editingTask.startDate || toInputDate(new Date());
-                          const fallbackEnd = editingTask.endDate || toInputDate(new Date(Date.now() + 7 * msPerDay));
-                          setEditingTask({
-                            ...editingTask,
-                            category: nextCategory,
-                            startDate: fallbackStart,
-                            endDate: fallbackEnd,
-                            progress: 0,
-                          });
-                        } else {
-                          setEditingTask({...editingTask, category: nextCategory});
-                        }
-                      }}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="AI賦能">AI賦能</option>
-                      <option value="流程優化">流程優化</option>
-                      <option value="產品行銷">產品行銷</option>
-                      <option value="品牌行銷">品牌行銷</option>
-                      <option value="客戶開發">客戶開發</option>
-                      <option value="學習與成長">學習與成長</option>
-                    </select>
+                    <div className="space-y-2">
+                      <select
+                        value={editingTask.category || ''}
+                        onChange={(e) => applyCategoryChange(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <option value="">請選擇分類</option>
+                        {categoryOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        value={newCategoryDraft}
+                        onChange={(e) => setNewCategoryDraft(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddCustomCategory();
+                          }
+                        }}
+                        placeholder="輸入新分類後按 Enter 新增"
+                        className="w-full border border-dashed border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      {categoryOptions.some((option) => !defaultCategoryOptions.includes(option)) && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <span className="text-xs text-slate-400">自訂分類：</span>
+                          {categoryOptions
+                            .filter((option) => !defaultCategoryOptions.includes(option))
+                            .map((option) => (
+                              <button
+                                type="button"
+                                key={`custom-${option}`}
+                                onClick={() => handleRemoveCustomCategory(option)}
+                                className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600 hover:border-red-300 hover:bg-red-50 hover:text-red-600 transition"
+                              >
+                                <span>{option}</span>
+                                <X className="w-3 h-3" />
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -2012,7 +2780,11 @@ const GanttManager = () => {
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => handleMaterialImageSelect(e.target.files?.[0] || null)}
+                            onChange={(e) => {
+                              const files = e.target.files || undefined;
+                              const firstFile = files && files[0] ? files[0] : null;
+                              handleMaterialImageSelect(firstFile);
+                            }}
                             className="w-full border border-dashed border-blue-200 rounded px-3 py-2 text-sm bg-blue-50/60"
                           />
                           {newMaterial.dataUrl && (
@@ -2125,32 +2897,13 @@ const GanttManager = () => {
           >
             <div
               ref={imageViewerRef}
-              className={`flex-1 min-h-[60vh] overflow-auto bg-black p-4 select-none ${
-                isPanningImage ? 'cursor-grabbing' : 'cursor-grab'
-              }`}
-              style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
-              onWheel={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                if (!imageViewerRef.current) return;
-                imageViewerRef.current.scrollTop += e.deltaY;
-                imageViewerRef.current.scrollLeft += e.deltaX;
-              }}
-              onMouseDown={(e) => {
-                if (e.button !== 0) return;
-                if (!imageViewerRef.current) return;
-                e.preventDefault();
-                e.stopPropagation();
-
-                panStateRef.current = {
-                  isDragging: true,
-                  startX: e.clientX,
-                  startY: e.clientY,
-                  scrollLeft: imageViewerRef.current.scrollLeft,
-                  scrollTop: imageViewerRef.current.scrollTop,
-                };
-                setIsPanningImage(true);
-              }}
+              className={`flex-1 min-h-[60vh] overflow-auto bg-black p-4 select-none ${viewerCursorClass}`}
+              style={{ touchAction: 'pan-x pan-y pinch-zoom', overscrollBehavior: 'contain' }}
+              onWheel={handleViewerWheel}
+              onPointerDown={handleViewerPointerDown}
+              onPointerMove={handleViewerPointerMove}
+              onPointerUp={handleViewerPointerUp}
+              onPointerCancel={handleViewerPointerCancel}
             >
               <img
                 src={activeImage.src}
@@ -2182,4 +2935,620 @@ const GanttManager = () => {
   );
 };
 
-export default GanttManager;
+type WorkspaceSummary = {
+  id: string;
+  name: string;
+  owner?: string;
+  status?: string;
+  color?: string;
+  taskCount: number;
+  range?: { start?: string; end?: string };
+  updatedAt?: string;
+  createdAt?: string;
+  lastSyncedAt?: string;
+};
+
+type ManagementDashboardProps = {
+  apiBaseUrl: string;
+  onOpenWorkspace?: (workspaceId: string, options?: { newTab?: boolean }) => void;
+  onNavigateHome?: () => void;
+};
+
+const ManagementDashboard: React.FC<ManagementDashboardProps> = ({ apiBaseUrl, onOpenWorkspace, onNavigateHome }) => {
+  const [workspaces, setWorkspaces] = useState<WorkspaceSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [previewWorkspaceId, setPreviewWorkspaceId] = useState<string | null>(null);
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    owner: '',
+    start: '',
+    end: '',
+  });
+  const [deletingWorkspaceId, setDeletingWorkspaceId] = useState<string | null>(null);
+
+  const fetchWorkspaces = useCallback(async () => {
+    if (!apiBaseUrl) {
+      setErrorMessage('未設定 API 端點，無法載入工作區。');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setErrorMessage(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/workspaces`, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      const list = Array.isArray(data.workspaces) ? data.workspaces : [];
+      setWorkspaces(
+        list.map((item) => ({
+          ...item,
+          taskCount: typeof item.taskCount === 'number' ? item.taskCount : 0,
+        })),
+      );
+    } catch (error) {
+      console.error('[Management] Failed to fetch workspaces', error);
+      setErrorMessage(error instanceof Error ? error.message : '無法載入工作區列表');
+    } finally {
+      setLoading(false);
+    }
+  }, [apiBaseUrl]);
+
+  useEffect(() => {
+    void fetchWorkspaces();
+  }, [fetchWorkspaces]);
+
+  const handleCreateWorkspace = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!apiBaseUrl) return;
+    setCreating(true);
+    setErrorMessage(null);
+    try {
+      const payload = {
+        name: formData.name.trim() || undefined,
+        owner: formData.owner.trim() || undefined,
+        range:
+          formData.start || formData.end
+            ? { start: formData.start || '', end: formData.end || '' }
+            : undefined,
+      };
+      const response = await fetch(`${apiBaseUrl}/workspaces`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        const message = detail?.error || detail?.detail || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+      const created = await response.json();
+      setFormData({ name: '', owner: '', start: '', end: '' });
+      setFormOpen(false);
+      await fetchWorkspaces();
+      if (created?.id) {
+        handleOpenWorkspace(created.id, { newTab: true });
+      }
+    } catch (error) {
+      console.error('[Management] Failed to create workspace', error);
+      setErrorMessage(error instanceof Error ? error.message : '建立工作區失敗');
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const handleOpenWorkspace = (id: string, options?: { newTab?: boolean }) => {
+    if (onOpenWorkspace) {
+      onOpenWorkspace(id, options);
+      return;
+    }
+    if (typeof window === 'undefined') return;
+    if (options?.newTab) {
+      window.open(buildWorkspaceUrl(id), '_blank', 'noopener');
+    } else {
+      window.location.href = buildWorkspaceUrl(id);
+    }
+  };
+
+  const handlePreviewWorkspace = (id: string) => {
+    setPreviewWorkspaceId(id);
+  };
+
+  const handleClosePreview = () => setPreviewWorkspaceId(null);
+
+  const hasWorkspaces = workspaces.length > 0;
+  const statusOptions = [
+    { value: 'active', label: '進行中', color: '#ec4899' },
+    { value: 'closed', label: '已結案', color: '#64748b' },
+  ];
+
+  const handleStatusChange = async (workspace: WorkspaceSummary, nextStatus: string) => {
+    if (!apiBaseUrl || workspace.status === nextStatus) {
+      return;
+    }
+
+    setUpdatingStatusId(workspace.id);
+    setErrorMessage(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/workspaces/${encodeURIComponent(workspace.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        const message = detail?.error || detail?.detail || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+
+      const result = await response.json();
+      const updated = result?.workspace;
+      if (updated) {
+        setWorkspaces((prev) =>
+          prev.map((item) =>
+            item.id === workspace.id
+              ? { ...item, status: updated.status ?? nextStatus, updatedAt: updated.updatedAt ?? item.updatedAt }
+              : item
+          )
+        );
+      } else {
+        setWorkspaces((prev) =>
+          prev.map((item) => (item.id === workspace.id ? { ...item, status: nextStatus } : item))
+        );
+      }
+    } catch (error) {
+      console.error('[Management] Failed to update workspace status', error);
+      setErrorMessage(error instanceof Error ? error.message : '更新狀態失敗');
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
+
+  const handleDeleteWorkspace = async (workspace: WorkspaceSummary) => {
+    if (!apiBaseUrl) return;
+    if (workspace.id === DEFAULT_WORKSPACE_ID) {
+      setErrorMessage('預設工作區無法刪除');
+      return;
+    }
+
+    const confirmed =
+      typeof window !== 'undefined'
+        ? window.confirm(`確定刪除「${workspace.name || workspace.id}」？此操作無法復原。`)
+        : true;
+    if (!confirmed) {
+      return;
+    }
+
+    setDeletingWorkspaceId(workspace.id);
+    setErrorMessage(null);
+    try {
+      const response = await fetch(`${apiBaseUrl}/workspaces/${encodeURIComponent(workspace.id)}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const detail = await response.json().catch(() => ({}));
+        const message = detail?.error || detail?.detail || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+
+      setWorkspaces((prev) => prev.filter((item) => item.id !== workspace.id));
+    } catch (error) {
+      console.error('[Management] Failed to delete workspace', error);
+      setErrorMessage(error instanceof Error ? error.message : '刪除失敗');
+    } finally {
+      setDeletingWorkspaceId(null);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/60 to-indigo-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/70 border border-white py-1 px-3 shadow-sm text-sm text-indigo-600 font-medium">
+              <LayoutGrid className="w-4 h-4" />
+              甘特圖管理
+            </div>
+            <h1 className="mt-3 text-3xl font-semibold text-slate-900">
+              七彩甘特圖管理器
+            </h1>
+            <p className="mt-2 text-sm text-slate-600 max-w-2xl">
+              集中檢視所有專案甘特圖、追蹤負責人與時程，並快速開啟或建立新的工作區。
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {onNavigateHome && (
+              <button
+                onClick={onNavigateHome}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg border border-slate-200 transition-colors"
+              >
+                返回工作區
+              </button>
+            )}
+            <button
+              onClick={() => void fetchWorkspaces()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white rounded-lg border border-slate-200 transition-colors"
+            >
+              <RefreshCw className="w-4 h-4" />
+              重新整理
+            </button>
+            <button
+              onClick={() => setFormOpen((prev) => !prev)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-lg shadow hover:shadow-md transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              新增甘特圖
+            </button>
+          </div>
+        </header>
+
+        {errorMessage && (
+          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 shadow-sm">
+            {errorMessage}
+          </div>
+        )}
+
+        {formOpen && (
+          <form
+            onSubmit={handleCreateWorkspace}
+            className="bg-white rounded-xl shadow-lg border border-slate-100 p-6 space-y-4"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">建立新的甘特圖</h2>
+                <p className="text-sm text-slate-500">
+                  輸入專案名稱與基本資訊，系統會建立空白甘特圖供你設定。
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormOpen(false)}
+                className="text-sm text-slate-500 hover:text-slate-700"
+              >
+                取消
+              </button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="flex flex-col gap-2 text-sm text-slate-700">
+                專案名稱 *
+                <input
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
+                  placeholder="例如：2025 Q1 行銷計畫"
+                  className="rounded-lg border border-slate-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-700">
+                負責人
+                <input
+                  value={formData.owner}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, owner: e.target.value }))}
+                  placeholder="負責人"
+                  className="rounded-lg border border-slate-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-700">
+                開始日期
+                <input
+                  type="date"
+                  value={formData.start}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, start: e.target.value }))}
+                  className="rounded-lg border border-slate-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-sm text-slate-700">
+                結束日期
+                <input
+                  type="date"
+                  value={formData.end}
+                  min={formData.start || undefined}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, end: e.target.value }))}
+                  className="rounded-lg border border-slate-200 px-3 py-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+              </label>
+            </div>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setFormOpen(false);
+                  setFormData({ name: '', owner: '', start: '', end: '' });
+                }}
+                className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700"
+              >
+                關閉
+              </button>
+              <button
+                type="submit"
+                disabled={creating}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 disabled:opacity-70"
+              >
+                {creating && <Loader2 className="w-4 h-4 animate-spin" />}
+                建立
+              </button>
+            </div>
+          </form>
+        )}
+
+        <section className="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+          <div className="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">甘特圖清單</h2>
+              <p className="text-xs text-slate-500">
+                共 {workspaces.length} 個工作區
+              </p>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-100 text-sm">
+              <thead className="bg-slate-50">
+                <tr className="text-slate-500 text-xs uppercase tracking-wide">
+                  <th className="px-4 py-3 text-left">專案</th>
+                  <th className="px-4 py-3 text-left">負責人</th>
+                  <th className="px-4 py-3 text-left">期間</th>
+                  <th className="px-4 py-3 text-center">任務數</th>
+                  <th className="px-4 py-3 text-left">狀態</th>
+                  <th className="px-4 py-3 text-left">最近更新</th>
+                  <th className="px-4 py-3 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-10 text-center text-slate-500">
+                      <div className="inline-flex items-center gap-2 text-sm">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        載入中…
+                      </div>
+                    </td>
+                  </tr>
+                ) : hasWorkspaces ? (
+                  workspaces.map((workspace) => (
+                    <tr key={workspace.id} className="hover:bg-slate-50/70 transition">
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col">
+                          <span className="font-medium text-slate-900">
+                            {workspace.name || '未命名專案'}
+                          </span>
+                          <span className="text-xs text-slate-400">
+                            ID: {workspace.id}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {workspace.owner || '—'}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {formatDateRangeLabel(workspace.range)}
+                      </td>
+                      <td className="px-4 py-3 text-center font-semibold text-slate-800">
+                        {workspace.taskCount}
+                      </td>
+                      <td className="px-4 py-3">
+                        <label className="inline-flex items-center gap-2 text-xs font-medium text-slate-600">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                statusOptions.find((option) => option.value === workspace.status)?.color ||
+                                workspace.color ||
+                                '#6366f1',
+                            }}
+                          ></span>
+                          <select
+                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400"
+                            value={workspace.status || 'active'}
+                            onChange={(e) => handleStatusChange(workspace, e.target.value)}
+                            disabled={updatingStatusId === workspace.id}
+                          >
+                            {statusOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {formatUpdatedAtLabel(workspace.updatedAt)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => handlePreviewWorkspace(workspace.id)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            預覽
+                          </button>
+                          <button
+                            onClick={() => handleOpenWorkspace(workspace.id)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-2.5 py-1.5 text-xs font-medium text-white shadow hover:bg-indigo-700 transition"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            開啟
+                          </button>
+                          <button
+                            onClick={() => handleDeleteWorkspace(workspace)}
+                            className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium transition border ${
+                              workspace.id === DEFAULT_WORKSPACE_ID
+                                ? 'border-slate-200 text-slate-300 cursor-not-allowed'
+                                : 'border-red-200 text-red-600 hover:bg-red-50'
+                            }`}
+                            disabled={
+                              workspace.id === DEFAULT_WORKSPACE_ID || deletingWorkspaceId === workspace.id
+                            }
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            刪除
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-12 text-center text-slate-500">
+                      目前尚未建立任何甘特圖。點擊「新增甘特圖」開始第一個專案。
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {previewWorkspaceId && (
+          <section className="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 rounded-full bg-indigo-100 text-indigo-600 px-2.5 py-1 text-xs font-semibold">
+                  <Eye className="w-3.5 h-3.5" />
+                  即時預覽
+                </span>
+                <span className="text-sm text-slate-600">
+                  {workspaces.find((item) => item.id === previewWorkspaceId)?.name || '未命名專案'}
+                </span>
+              </div>
+              <button
+                onClick={handleClosePreview}
+                className="text-xs text-slate-500 hover:text-slate-700"
+              >
+                關閉
+              </button>
+            </div>
+            <div className="relative bg-slate-100">
+              <iframe
+                key={previewWorkspaceId}
+                src={buildWorkspaceUrl(previewWorkspaceId, { embed: '1' })}
+                className="w-full h-[560px] border-0"
+                title="甘特圖預覽"
+              ></iframe>
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  );
+};
+
+type WorkspaceRouteProps = {
+  apiBaseUrl: string;
+};
+
+const ApiConfigError: React.FC = () => (
+  <div className="min-h-screen bg-slate-900 text-slate-200 flex items-center justify-center">
+    <div className="text-center space-y-3">
+      <h1 className="text-xl font-semibold">API 端點未設定</h1>
+      <p className="text-sm text-slate-400">請確認部署環境變數或本地設定。</p>
+    </div>
+  </div>
+);
+
+const getLocationSnapshot = () =>
+  typeof window === 'undefined'
+    ? { pathname: '/', search: '' }
+    : { pathname: window.location.pathname, search: window.location.search };
+
+const AppShell: React.FC = () => {
+  const [locationSnapshot, setLocationSnapshot] = useState(() => ENTRY_OVERRIDE ?? getLocationSnapshot());
+  const apiBaseUrl = useMemo(() => resolveApiBaseUrl(), []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const handlePopState = () => {
+      setLocationSnapshot(getLocationSnapshot());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      (window as any).__GANTT_ENTRY_OVERRIDE = null;
+    }
+  }, []);
+
+  const handleUpdateWorkspace = useCallback((nextWorkspaceId?: string) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+  const params = new URLSearchParams(window.location.search || '');
+  if (nextWorkspaceId) {
+    params.set('workspace', nextWorkspaceId);
+  }
+  const nextUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({ workspaceId: nextWorkspaceId }, '', nextUrl);
+    setLocationSnapshot(getLocationSnapshot());
+  }, []);
+
+  const handleNavigateManager = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/management';
+    }
+  }, []);
+
+  const handleOpenWorkspace = useCallback((workspaceId: string, options?: { newTab?: boolean }) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const target = buildWorkspaceUrl(workspaceId);
+    if (options?.newTab) {
+      window.open(target, '_blank', 'noopener');
+    } else {
+      window.location.href = target;
+    }
+  }, []);
+
+  if (!apiBaseUrl) {
+    return <ApiConfigError />;
+  }
+
+  const params = new URLSearchParams(locationSnapshot.search || '');
+  const workspaceId = params.get('workspace')?.trim() || DEFAULT_WORKSPACE_ID;
+  const embed = ['1', 'true', 'yes'].includes((params.get('embed') || '').toLowerCase());
+
+  const mode = locationSnapshot.pathname.startsWith('/management') ? 'manager' : 'workspace';
+
+  if (mode === 'manager') {
+    return (
+      <ManagementDashboard
+        apiBaseUrl={apiBaseUrl}
+        onOpenWorkspace={(id, options) => handleOpenWorkspace(id, options)}
+        onNavigateHome={() => handleOpenWorkspace(workspaceId)}
+      />
+    );
+  }
+
+  return (
+    <GanttWorkspaceApp
+      workspaceId={workspaceId}
+      embedMode={embed}
+      apiBaseUrl={apiBaseUrl}
+      onContextRefresh={handleUpdateWorkspace}
+      onOpenManager={handleNavigateManager}
+    />
+  );
+};
+
+export const routes = [
+  {
+    path: '/*',
+    element: <AppShell />,
+  },
+];
+
+export default AppShell;
