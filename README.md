@@ -1,167 +1,477 @@
 # 繽紛七彩酷炫甘特圖 (Gantt Manager)
 
-這是一個功能完善的甘特圖 (Gantt Chart) 管理應用程式。它提供了一個視覺化、互動式的介面來規劃和追蹤專案進度，並支援多個獨立的專案工作區。
+> 一個現代化、全功能的專案管理與甘特圖視覺化應用程式
 
-本應用包含一個 React 前端、一個 Node.js 後端，並設定為在 Vercel 上部署。
+[![部署狀態](https://img.shields.io/badge/部署-Vercel-black)](https://dist-taupe-delta.vercel.app)
+[![技術棧](https://img.shields.io/badge/技術棧-React%20%7C%20TypeScript%20%7C%20Express-blue)](https://github.com)
 
-## ✨ 主要功能
+## 🎯 專案簡介
 
-### 甘特圖工作區 (Gantt Workspace)
-- **互動式時間軸**：視覺化呈現任務的開始、結束日期與進度。
-- **任務管理**：支援新增、編輯、刪除任務，並可設定任務的描述、狀態、進度、分類等。
-- **附件與材料**：每個任務可以附加多種類型的補充材料（連結、圖片、文件、備註）。
-- **拖曳排序**：可透過拖曳方式輕鬆調整任務的順序。
-- **儀表板 (Dashboard)**：提供專案的整體進度、任務狀態分佈、以及各分類任務佔比的統計圖表。
-- **學習與成長專區**：獨立的區塊來追蹤與專案相關的學習項目。
-- **PDF 匯出**：一鍵將整個專案儀表板與甘特圖匯出為 PDF 檔案，方便報告與分享。
+繽紛七彩酷炫甘特圖是一個功能完善的專案管理系統，提供視覺化的甘特圖介面、多工作區支援、即時統計分析，以及強大的任務管理功能。無論是個人專案追蹤或團隊協作規劃，都能輕鬆上手。
 
-### 管理後台 (Management Dashboard)
-- **集中管理**：提供一個獨立的管理介面，統一查看所有建立的甘特圖專案。
-- **工作區操作**：支援建立新的工作區、刪除現有工作區。
-- **狀態變更**：可將專案標示為「進行中」或「已結案」。
-- **即時預覽**：在不離開管理介面的情況下，可即時預覽任何一個甘特圖專案的內容。
+**核心特色：**
+- 🎨 直觀的拖曳式任務管理介面
+- 📊 即時統計儀表板與進度分析
+- 🗂️ 多工作區獨立管理
+- 📱 完全響應式設計，支援各種裝置
+- ☁️ 雲端資料同步（支援 Redis / Vercel KV）
+- 📄 一鍵匯出 PDF 報告
+- 🎓 獨立的學習與成長追蹤區
 
-## 🛠️ 技術架構 (Tech Stack)
+## 🚀 快速開始
 
-- **前端 (Frontend)**:
-  - [React](https://reactjs.org/)
-  - [TypeScript](https://www.typescriptlang.org/)
-  - [Lucide React](https://lucide.dev/) (for icons)
-- **後端 (Backend)**:
-  - [Node.js](https://nodejs.org/)
-  - [Express](https://expressjs.com/)
-- **數據儲存 (Data Storage)**:
-  - 優先使用 [Vercel KV](https://vercel.com/storage/kv) 或 [Redis](https://redis.io/) 進行雲端持久化儲存。
-  - 若未設定雲端資料庫，則會降級使用本地的 `backend/tasks.json` 檔案。
-- **部署 (Deployment)**:
-  - [Vercel](https://vercel.com/)
+### 線上體驗
 
-## 🔗 線上環境
+| 入口 | URL |
+|------|-----|
+| 預設工作區 | [https://dist-taupe-delta.vercel.app/?workspace=default](https://dist-taupe-delta.vercel.app/?workspace=default) |
+| 管理後台 | [https://dist-taupe-delta.vercel.app/management](https://dist-taupe-delta.vercel.app/management) |
+| 後端 API | [https://backend-janus-projects-f12c2f60.vercel.app](https://backend-janus-projects-f12c2f60.vercel.app) |
 
-| 類型 | URL |
-| ---- | --- |
-| 預設工作區（我的三個月） | `https://dist-taupe-delta.vercel.app/?workspace=default` |
-| 管理介面 | `https://dist-taupe-delta.vercel.app/management` |
-| 後端 API | `https://backend-janus-projects-f12c2f60.vercel.app` |
+### 本地開發環境設定
 
-> 前端會依據 `VITE_API_BASE_URL` 環境變數切換 API。如果未設定，會 fallback 到上面的後端網址。
+#### 前置需求
+- Node.js 16.x 或更高版本
+- npm 或 yarn 套件管理工具
 
-## 🚀 如何開始 (Getting Started)
+#### 1. 安裝依賴
 
-要在你的本地端電腦上執行此專案，請依照以下步驟操作。
-
-### 1. 安裝依賴套件
-
-本專案分為前端和後端，兩者都需要安裝各自的依賴套件。
-
-**前端:**
-在專案根目錄 (`/`) 下執行：
+**前端：**
 ```bash
 npm install
 ```
 
-**後端:**
-進入 `backend` 目錄下執行：
+**後端：**
 ```bash
 cd backend
 npm install
 ```
 
-### 2. 執行後端伺服器
+#### 2. 啟動後端服務
 
-後端 API 伺服器需要在一個獨立的終端機視窗中執行。
+在 `backend` 目錄下執行：
 ```bash
-# 位於 backend 目錄下
 npm run dev
 ```
-此指令會啟動後端伺服器 (預設在 `http://localhost:3001`)，並在程式碼變動時自動重啟。
+後端服務將在 `http://localhost:3001` 啟動。
 
-### 3. 執行前端開發環境
+#### 3. 啟動前端開發伺服器
 
-前端應用程式由 `run-claude-artifact` 工具包提供服務。在專案根目錄 (`/`) 下執行：
+返回專案根目錄執行：
 ```bash
 npx run-claude-artifact dev my-app.tsx
 ```
-這會啟動一個本地端開發伺服器，你可以在瀏覽器中開啟對應的網址來查看應用程式。
+前端應用將在瀏覽器中自動開啟（預設 `http://localhost:5173`）。
 
-## 📡 後端 API 端點
+## ✨ 主要功能
 
-後端伺服器提供了以下主要的 API 端點：
+### 📅 甘特圖工作區
 
-- `GET /health`: 檢查 API 服務狀態。
-- `GET /tasks?workspaceId=<id>`: 獲取指定工作區的任務和設定。
-- `PUT /tasks?workspaceId=<id>`: 更新指定工作區的任務和設定。
-- `GET /workspaces`: 獲取所有工作區的列表。
-- `POST /workspaces`: 建立一個新的工作區。
-- `PATCH /workspaces/:workspaceId`: 更新特定工作區的元數據（如狀態、名稱）。
-- `DELETE /workspaces/:workspaceId`: 刪除一個工作區。
+#### 互動式時間軸
+- 視覺化呈現任務的起始日期、結束日期與完成進度
+- 智慧型時間軸縮放：自動調整或自訂日期範圍
+- 週/日標記與今日指示線
+- 固定表頭設計，捲動時保持可見
 
-## 部署 (Deployment)
+#### 完整任務管理
+- **CRUD 操作**：建立、編輯、刪除任務
+- **任務屬性**：
+  - 名稱、起訖日期、完成進度（0-100%）
+  - 狀態：待處理、進行中、已完成、未發布、阻塞等
+  - 自訂分類標籤
+  - 詳細描述
+- **拖曳排序**：直覺的拖放介面重新排列任務順序
 
-這個專案已經設定好在 Vercel 上進行部署。
+#### 多類型附件支援
+每個任務支援多種補充材料：
+- 🔗 連結（含自訂名稱與備註）
+- 🖼️ 圖片（支援預覽）
+- 📎 檔案附件
+- 📝 文字備註
 
-- **觸發方式**: 當程式碼被推送到與 Vercel 專案關聯的 Git 儲存庫時，將會自動觸發部署。
-- **構建設定**: Vercel 會使用 `vercel.json` 中的設定來構建和部署專案。
-  - `buildCommand`: `npx run-claude-artifact build my-app.tsx --deploy-dir dist`
-  - `outputDirectory`: `dist`
-- **後端部署**: `backend` 目錄同樣可以被部署為一個 Vercel Serverless Function。你需要將後端 API 的公開網址設定為前端的環境變數 `VITE_API_BASE_URL`，以便前端應用能夠正確地與之通訊。
+#### 智慧分類系統
+- **預設分類**：AI賦能、流程優化、產品行銷、品牌行銷、客戶開發、學習與成長
+- **自訂分類**：編輯任務時即可新增
+- **自動配色**：8 種色彩循環配置
+- **特殊處理**："學習與成長" 分類獨立顯示，無需設定日期
 
-### 部署後的網址
+### 📊 統計儀表板
 
-本專案的前端和後端是獨立部署在 Vercel 上的。
+#### 整體進度視覺化
+- **圓環圖**：顯示專案整體完成百分比
+- **分類配色**：依任務分類比例自動著色
 
-- **我的三個月工作區（前端主站）**: `https://dist-taupe-delta.vercel.app/?workspace=default`
-- **甘特圖管理器**: `https://dist-taupe-delta.vercel.app/management`
-- **後端 API**: 根據專案配置 (`my-app.tsx` 中的 `computeDefaultApiBase` 函數)，後端 API 是作為一個**獨立的 Vercel 專案**部署的。其預設的部署網址為 `https://backend-janus-projects-f12c2f60.vercel.app`。
+#### 任務統計面板
+- 總任務數量
+- 已完成 / 進行中任務數
+- 即時更新
 
-**重要提示**: 前端應用會透過環境變數 `VITE_API_BASE_URL` 來決定後端 API 的位置。
-  - 在本地開發時，`VITE_API_BASE_URL` 預設為 `http://localhost:3001`。
-  - 在 Vercel 部署時，前端會優先使用 `VITE_API_BASE_URL` 環境變數的值。如果該變數未設定，則會使用 `https://backend-janus-projects-f12c2f60.vercel.app` 作為後端 API 的基礎 URL。請確保在前端專案的 Vercel 設定中，將 `VITE_API_BASE_URL` 設定為你的後端 API 實際部署的 URL。
+#### 分類分布圖表
+- 橫向長條圖展示各分類任務數量
+- 百分比分析
+- 色彩編碼分類識別
 
-## 🔍 驗收/測試建議
+### 🗂️ 管理後台
 
-1. **任務操作**：建立一筆任務、拖曳排序、變更狀態與分類，確認會同步到管理器。
-2. **分類自訂**：輸入新分類後按 Enter，確認下拉選單新增項目；點選 `×` 刪除時，任務分類會回到空白。
-3. **同步狀態**：關閉後端服務或撤掉環境變數確認離線 fallback；重新啟動後應恢復雲端資料。
-4. **管理器 CRUD**：新增／刪除工作區、切換狀態（進行中/已結案），列表立即更新。
-5. **時間軸對齊**：變更日期範圍為短期（如 5 天）與長期（跨月）各測一次，確認週/月切分與今日定位準確。
-6. **PDF 匯出**：點擊「匯出 PDF」，檢查輸出是否完整；目前仍採用 html2canvas 方案，解析度受限（見下方已知議題）。
+#### 多工作區管理
+- **集中介面**：統一管理所有專案工作區
+- **工作區資訊**：
+  - 專案名稱、負責人
+  - 狀態（進行中 / 已結案）
+  - 任務數量、日期範圍
+  - 最後更新時間
+  - 視覺化色彩標籤
 
-## 🧬 擴充與維護 (Development and Maintenance)
+#### 工作區操作
+- ➕ 建立新工作區（含名稱、負責人、日期範圍設定）
+- ✏️ 編輯工作區資訊
+- 🗑️ 刪除工作區（預設工作區除外）
+- 👁️ 即時預覽工作區內容（模態視窗展示）
 
-這份指南旨在幫助未來的開發者了解如何在此專案的基礎上新增功能或進行維護。
+### 📄 PDF 匯出
 
-### 專案結構
+- 一鍵匯出完整儀表板與甘特圖
+- 自動偵測方向（橫向 / 直向）
+- 高解析度渲染（2-3x DPR）
+- 匯出進度指示
 
-- **前端**: 主要的程式碼位於根目錄的 `my-app.tsx`。所有 UI 元件和前端邏輯都集中在此檔案。
-- **後端**: 位於 `backend/` 目錄。
-  - `server.js`: 定義了所有 API 端點 (Routes)。
-  - `storage.js`: 處理所有與數據儲存相關的邏輯。
+## 🛠️ 技術架構
+
+### 前端技術棧
+
+| 技術 | 版本 | 用途 |
+|------|------|------|
+| **React** | 18.x | UI 框架 |
+| **TypeScript** | Latest | 型別安全 |
+| **Tailwind CSS** | - | 樣式系統 |
+| **Lucide React** | Latest | 圖示元件庫 |
+| **html2canvas** | ^1.4.1 | Canvas 渲染 |
+| **jsPDF** | ^3.0.3 | PDF 產生 |
+| **run-claude-artifact** | ^2.0.0 | 開發工具 |
+
+### 後端技術棧
+
+| 技術 | 版本 | 用途 |
+|------|------|------|
+| **Node.js** | 16+ | JavaScript 執行環境 |
+| **Express.js** | ^4.19.2 | Web 框架 |
+| **CORS** | ^2.8.5 | 跨域請求處理 |
+| **Redis** | ^4.7.1 | 資料儲存客戶端 |
+
+### 資料持久化
+
+三層儲存策略，自動降級：
+
+1. **Redis**（優先）
+   - 環境變數：`REDIS_URL`
+   - 適用於自架 Redis 伺服器
+
+2. **Vercel KV**（備援）
+   - 環境變數：`KV_REST_API_URL`, `KV_REST_API_TOKEN`
+   - Vercel 原生 Redis 相容服務
+
+3. **本地 JSON**（開發）
+   - 路徑：`backend/tasks.json`
+   - 無雲端配置時啟用
+
+## 📁 專案結構
+
+```
+claude-artifact-build/
+├── my-app.tsx              # 前端主應用程式（3554 行）
+├── index.html              # HTML 入口
+├── package.json            # 前端依賴
+├── vercel.json             # 前端部署配置
+├── .env.local              # 前端環境變數（需自行建立）
+│
+├── backend/
+│   ├── server.js           # Express API 伺服器
+│   ├── storage.js          # 資料持久化抽象層
+│   ├── tasks.json          # 預設種子資料
+│   ├── package.json        # 後端依賴
+│   ├── vercel.json         # 後端部署配置
+│   └── .env.local          # 後端環境變數（需自行建立）
+│
+├── assets/
+│   ├── rainbow-cat.jpg     # 專案標誌
+│   └── rainbow-cat-128.jpg # 專案圖示（壓縮版）
+│
+└── dist/                   # 編譯輸出目錄
+```
+
+## 🔌 API 端點文件
+
+### 健康檢查
+```
+GET /health
+```
+回應：`{ status: 'ok', source: 'gantt-manager-api' }`
+
+### 任務操作
+```
+GET /tasks?workspaceId=<id>
+```
+- 取得指定工作區的任務與設定
+- 回應：`{ tasks: [], settings: {}, meta: {} }`
+
+```
+PUT /tasks?workspaceId=<id>
+```
+- 更新工作區任務
+- 請求體：`{ tasks: [], settings: {} }`
+- 回應：`{ success: true, count: <number> }`
+
+### 工作區管理
+```
+GET /workspaces
+```
+- 列出所有工作區
+- 回應：`{ workspaces: [...] }`
+
+```
+POST /workspaces
+```
+- 建立新工作區
+- 請求體：`{ name?, owner?, range?: { start?, end? } }`
+
+```
+PATCH /workspaces/:workspaceId
+```
+- 更新工作區資訊
+- 請求體：`{ status?, owner?, name? }`
+
+```
+DELETE /workspaces/:workspaceId
+```
+- 刪除工作區（預設工作區無法刪除）
+- 回應：`{ success: true }`
+
+## ⚙️ 環境變數配置
+
+### 前端 `.env.local`
+```bash
+VITE_API_BASE_URL=http://localhost:3001  # 本地開發
+# VITE_API_BASE_URL=https://your-backend-api.vercel.app  # 生產環境
+```
+
+### 後端 `backend/.env.local`
+
+**選項 1：使用 Redis**
+```bash
+REDIS_URL=redis://username:password@host:port
+PORT=3001
+```
+
+**選項 2：使用 Vercel KV**
+```bash
+KV_REST_API_URL=https://your-kv-instance.vercel.app
+KV_REST_API_TOKEN=your_token_here
+PORT=3001
+```
+
+**選項 3：僅本地開發（無雲端）**
+```bash
+PORT=3001
+# 不設定 REDIS_URL 或 KV_* 變數，將使用 tasks.json
+```
+
+## 🚢 部署指南
+
+### Vercel 部署（推薦）
+
+#### 前端部署
+
+1. 在 Vercel 建立新專案，連接此 Git 儲存庫
+2. 設定環境變數：
+   - `VITE_API_BASE_URL`：後端 API 完整網址
+3. 部署設定已包含在 `vercel.json` 中，無需額外配置
+
+#### 後端部署
+
+1. 在 Vercel 建立另一個專案，連接相同儲存庫
+2. 設定 Root Directory 為 `backend`
+3. 設定環境變數（擇一）：
+   - **Vercel KV**：`KV_REST_API_URL`, `KV_REST_API_TOKEN`
+   - **外部 Redis**：`REDIS_URL`
+4. 部署
+
+### 手動部署
+
+#### 編譯前端
+```bash
+npx run-claude-artifact build my-app.tsx --deploy-dir dist
+```
+將 `dist/` 目錄內容部署至任何靜態託管服務。
+
+#### 後端部署
+後端是標準的 Node.js Express 應用，可部署至：
+- Heroku
+- Railway
+- DigitalOcean App Platform
+- 任何支援 Node.js 的雲端平台
+
+確保設定正確的環境變數。
+
+## 🧪 測試建議
+
+1. **任務 CRUD**
+   - 建立任務並驗證儲存
+   - 編輯任務資訊並確認更新
+   - 刪除任務並驗證移除
+
+2. **拖曳排序**
+   - 拖曳任務改變順序
+   - 驗證排序是否持久化
+
+3. **分類管理**
+   - 新增自訂分類
+   - 驗證分類顏色自動分配
+   - 刪除分類標籤
+
+4. **同步機制**
+   - 關閉後端服務測試離線模式
+   - 重新連線後驗證資料同步
+
+5. **工作區管理**
+   - 建立、編輯、刪除工作區
+   - 切換工作區狀態
+   - 驗證工作區預覽功能
+
+6. **時間軸顯示**
+   - 測試短期範圍（數日）
+   - 測試長期範圍（跨月）
+   - 驗證今日標記位置
+
+7. **PDF 匯出**
+   - 匯出並檢查內容完整性
+   - 驗證多頁面處理
+
+## 🎨 資料模型
+
+### Task（任務）
+```typescript
+{
+  id: string | number,
+  name: string,
+  startDate: string,        // YYYY-MM-DD
+  endDate: string,          // YYYY-MM-DD
+  status: 'pending' | 'in-progress' | 'completed' | 'unpublished' | 'blocked' | string,
+  category: string,
+  progress: number,         // 0-100
+  description?: string,
+  materials: Material[]
+}
+```
+
+### Material（附件）
+```typescript
+{
+  id: string | number,
+  type: 'link' | 'image' | 'file' | 'note',
+  name: string,
+  url?: string,
+  dataUrl?: string,         // Base64 for images
+  note?: string
+}
+```
+
+### Workspace（工作區）
+```typescript
+{
+  id: string,
+  name: string,
+  owner?: string,
+  status: 'active' | 'closed',
+  color?: string,
+  tasks: Task[],
+  settings: {
+    projectTitle: string,
+    rangeMode: 'auto' | 'custom',
+    viewRange: { start: string, end: string }
+  },
+  createdAt: string,
+  updatedAt: string,
+  lastSyncedAt: string
+}
+```
+
+## 🔧 開發指南
 
 ### 新增前端功能
 
-1.  **元件化**: 雖然目前大部分 UI 都在 `my-app.tsx` 中，但建議未來新增複雜功能時，可以建立新的 React 元件檔案，並在 `my-app.tsx` 中引入，以保持程式碼的整潔。
-2.  **樣式**: 專案使用類似 [Tailwind CSS](https://tailwindcss.com/) 的功能類別 (Utility Classes) 來處理樣式，直接在 JSX 元素上透過 `className` 添加。
-3.  **與後端通訊**: 前端透過 `fetch` 函數與後端 API 進行通訊。API 的基礎 URL 是動態解析的，無需手動設定。
+主要邏輯集中在 `my-app.tsx`。建議未來複雜功能可模組化：
 
-### 新增後端功能
+```typescript
+// 範例：提取元件
+function NewFeatureComponent({ props }) {
+  // 元件邏輯
+  return <div>...</div>
+}
+```
 
-1.  **新增 API 端點**: 在 `backend/server.js` 中，你可以仿照現有的 Express 路由 (例如 `app.get(...)`, `app.post(...)`) 來新增 API 端點。
-2.  **修改資料模型**: 如果需要為任務 (task) 或工作區 (workspace) 新增欄位，你需要：
-    - 在 `backend/storage.js` 中更新資料的正規化/骨架函式 (e.g., `createWorkspaceSkeleton`)。
-    - 確保前端傳送的資料與後端預期的模型一致。
+### 新增後端端點
 
-### 維護注意事項
+在 `backend/server.js` 中新增路由：
 
-- **依賴套件**: 如果需要新增依賴套件，請記得在對應的目錄 (`/` 或 `backend/`) 下使用 `npm install <package-name>`，並確保 `package.json` 有被更新。
-- **數據持久層**: `storage.js` 的設計具有彈性。在本地開發時，它會依賴 `tasks.json`。在 Vercel 上部署時，它會自動切換到 Vercel KV 或 Redis。在進行資料庫相關的變更時，需要考慮到這兩種情況。
+```javascript
+app.get('/new-endpoint', async (req, res) => {
+  try {
+    // 處理邏輯
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+```
 
-## ⚠️ 已知議題與後續建議
+### 修改資料模型
 
-- **PDF 匯出解析度**：目前採用 html2canvas 截圖，因此在 A4 尺寸檢視時仍可能有些模糊。若要獲得真正的向量 PDF，可考慮改用 Playwright/Chromium 伺服器端匯出，或改寫為 PDF 模板產生。
-- **自動化測試**：目前仍以手動測試為主，建議未來補上關鍵邏輯（時間軸計算、分類管理、後端儲存）的整合測試。
-- **大範圍時間軸效能**：跨年度的時間軸在低階裝置上捲動時會有細微掉幀，後續可以考慮虛擬化或拆段渲染。
+1. 更新 TypeScript 介面定義
+2. 在 `backend/storage.js` 中更新骨架函式
+3. 更新前端元件以處理新欄位
+4. 測試資料遷移邏輯
+
+## ⚠️ 已知限制與改進方向
+
+### 目前限制
+- **PDF 匯出解析度**：使用 html2canvas 截圖方式，非向量格式
+- **程式碼組織**：前端邏輯集中於單一檔案（3554 行）
+- **無自動化測試**：目前依賴手動測試
+- **大範圍時間軸效能**：跨年度範圍可能有效能問題
+- **無虛擬捲動**：大量任務時可能影響效能
+
+### 未來改進建議
+- [ ] 實作真向量 PDF 匯出（Playwright / Puppeteer）
+- [ ] 模組化前端元件架構
+- [ ] 新增自動化測試套件
+- [ ] 實作虛擬捲動以優化大列表效能
+- [ ] 新增使用者認證與授權
+- [ ] 支援即時多人協作
+- [ ] 新增任務依賴關係視覺化
+- [ ] 實作搜尋與篩選功能
+- [ ] 新增通知與提醒系統
+
+## 📄 授權
+
+此專案由 **Janus_澈行** 開發維護。
+
+## 🤝 貢獻
+
+歡迎提交 Issue 或 Pull Request！
+
+## 📞 聯絡方式
+
+如有問題或建議，請透過 GitHub Issues 聯繫。
 
 ---
 
-如需更多歷程或需求脈絡，請參考仓庫中的 `.specstory/` 歷史紀錄檔案。
+**版本**: v1.1
+**最後更新**: 2025-11-07
+**作者**: Janus_澈行
+
+## 📚 相關文件
+
+- 詳細開發歷程請參考 `.specstory/` 目錄下的歷史紀錄檔案
+- Vercel 部署文件：[https://vercel.com/docs](https://vercel.com/docs)
+- React 官方文件：[https://react.dev](https://react.dev)
+- Express.js 文件：[https://expressjs.com](https://expressjs.com)
