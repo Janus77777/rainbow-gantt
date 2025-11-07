@@ -455,9 +455,6 @@ app.get('/new-endpoint', async (req, res) => {
 
 此專案由 **Janus_澈行** 開發維護。
 
-## 🤝 貢獻
-
-歡迎提交 Issue 或 Pull Request！
 
 ## 📞 聯絡方式
 
