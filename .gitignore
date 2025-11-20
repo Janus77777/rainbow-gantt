@@ -7,4 +7,13 @@
 # Node modules
 node_modules/
 .env*.local
+
+# Vercel
 .vercel
+
+# Backups
+.backup/
+
+# Logs
+*.log
+/tmp/vercel-deploy-*.log
