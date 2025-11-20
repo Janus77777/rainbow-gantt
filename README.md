@@ -2,12 +2,17 @@
 
 > 一個現代化、全功能的專案管理與甘特圖視覺化應用程式
 
-[![部署狀態](https://img.shields.io/badge/部署-Vercel-black)](https://dist-taupe-delta.vercel.app)
+[![部署狀態](https://img.shields.io/badge/部署-Vercel-black)](https://rainbow-gantt.vercel.app)
 [![技術棧](https://img.shields.io/badge/技術棧-React%20%7C%20TypeScript%20%7C%20Express-blue)](https://github.com)
 
 ## 📢 更新日誌
 
-### 2025-11-21
+### 2025-11-21 (最新)
+- **✨ 全新 Vercel 項目**：建立獨立項目 `rainbow-gantt`，徹底解決多項目路由衝突問題
+- **🔓 自動化部署保護關閉**：使用 Vercel API 自動化配置，無需手動操作 Dashboard
+- **⚙️ 環境變量配置**：完成生產環境 API 端點配置（VITE_API_BASE_URL）
+- **🎯 新域名**：https://rainbow-gantt.vercel.app
+- **🧹 清理遺留文件**：移除 Strategy Inc. API 代碼和環境變量
 - **修復部署問題**：修正根目錄 `index.html` 檔案，解決訪問根路徑導向錯誤項目的問題
 - **專案遷移**：將專案從 `~/claude-artifact-build/` 移動至 `~/Documents/coding_projects/專案/甘特圖專案管理/`
 - **備份檔案**：舊版 Strategy Inc. 頁面已備份至 `index-strategy-inc-backup.html`
@@ -31,8 +36,8 @@
 
 | 入口 | URL |
 |------|-----|
-| 預設工作區 | [https://dist-taupe-delta.vercel.app/?workspace=default](https://dist-taupe-delta.vercel.app/?workspace=default) |
-| 管理後台 | [https://dist-taupe-delta.vercel.app/management](https://dist-taupe-delta.vercel.app/management) |
+| 預設工作區 | [https://rainbow-gantt.vercel.app/?workspace=default](https://rainbow-gantt.vercel.app/?workspace=default) |
+| 管理後台 | [https://rainbow-gantt.vercel.app/management](https://rainbow-gantt.vercel.app/management) |
 | 後端 API | [https://backend-janus-projects-f12c2f60.vercel.app](https://backend-janus-projects-f12c2f60.vercel.app) |
 
 ### 本地開發環境設定
