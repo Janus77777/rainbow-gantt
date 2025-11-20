@@ -1,9 +1,0 @@
-{
-  "version": 3,
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "^/management$", "dest": "/index.html" },
-    { "src": "^/(?!api)(?!.*\\.).*$", "dest": "/index.html" },
-    { "src": "/.*", "status": 404, "dest": "/404.html" }
-  ]
-}

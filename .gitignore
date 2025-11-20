@@ -7,3 +7,4 @@
 # Node modules
 node_modules/
 .env*.local
+.vercel
