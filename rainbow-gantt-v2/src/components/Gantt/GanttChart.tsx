@@ -97,117 +97,118 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
   }, [tasks, timelineStart]);
 
   return (
-    <div className="retro-panel p-0 h-full overflow-hidden flex flex-col relative">
-      {/* Today Line - 動態位置 */}
-      <div
-        className="absolute top-14 bottom-0 z-30 pointer-events-none border-l-2 border-cyan-500/60 border-solid"
-        style={{ left: `${250 + todayOffset * dayWidth + dayWidth / 2}px` }}
-      >
-        <div className="absolute -top-1.5 -left-[5px] w-2.5 h-2.5 bg-cyan-500 border border-gray-900" />
-        <div className="absolute -top-9 -left-6 bg-cyan-500 text-white text-[10px] px-2 py-1 uppercase font-bold border border-gray-900">
-          TODAY
+    <div className="retro-panel p-0 h-full overflow-auto custom-scrollbar relative">
+      <div className="min-w-fit flex flex-col relative">
+        
+        {/* Header Row - Sticky Top */}
+        <div className="sticky top-0 z-40 flex h-16 bg-gray-100 border-b-2 border-gray-900 shadow-sm">
+          {/* Corner (Task Name) - Sticky Left + Top */}
+          <div className="sticky left-0 z-50 w-[250px] shrink-0 bg-gray-100 border-r-2 border-gray-900 flex items-center pl-6 font-bold text-gray-800 text-xs tracking-wider uppercase">
+            TASK_NAME
+          </div>
+          
+          {/* Date Header - Scrollable horizontally */}
+          <div className="flex">
+            {Array.from({ length: daysInMonth }).map((_, i) => {
+              const d = new Date(timelineStart);
+              d.setDate(d.getDate() + i);
+              const isToday = i === todayOffset;
+              return (
+                <div
+                  key={i}
+                  className={`w-12 shrink-0 text-center text-xs font-bold border-r border-gray-300 flex items-center justify-center
+                    ${isToday ? 'bg-cyan-100 text-cyan-800 border-cyan-500' : 'text-gray-600'}`}
+                >
+                  {d.getDate()}
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {/* Header Row */}
-      <div className="flex border-b-2 border-gray-900 bg-gray-100 z-20 relative h-14">
-        <div className="w-[250px] shrink-0 flex items-center pl-6 font-bold text-gray-800 text-xs tracking-wider border-r-2 border-gray-900 uppercase">
-          TASK_NAME
-        </div>
-        <div className="flex-1 overflow-hidden relative">
-           <div className="flex h-full items-center">
-              {/* 動態生成當月日期頭部 */}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                 const d = new Date(timelineStart);
-                 d.setDate(d.getDate() + i);
-                 const isToday = i === todayOffset;
-                 return (
-                    <div
-                      key={i}
-                      className={`w-12 shrink-0 text-center text-xs font-bold border-l border-gray-300 first:border-l-0
-                        ${isToday ? 'bg-cyan-100 text-cyan-800 border-cyan-500' : 'text-gray-600'}`}
-                    >
-                      {d.getDate()}
-                    </div>
-                 );
-              })}
-           </div>
-        </div>
-      </div>
+        {/* Body Section */}
+        <div className="flex flex-1 relative">
+          
+          {/* Left Sidebar - Sticky Left */}
+          <div className="sticky left-0 z-30 w-[250px] shrink-0 bg-gray-100 border-r-2 border-gray-900">
+            {processedTasks.map((task) => {
+              const priorityConfig = task.priority ? PRIORITY_CONFIG[task.priority] : null;
+              return (
+                <div
+                  key={task.id}
+                  className="h-14 flex items-center px-3 border-b border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer group"
+                  onClick={() => onTaskClick(task)}
+                >
+                  {/* 優先級文字標籤 */}
+                  <div className={`px-2 py-1 border border-gray-900 text-[10px] font-bold mr-2 shrink-0 ${priorityConfig ? `${priorityConfig.bgColor} ${priorityConfig.textColor}` : 'bg-gray-200 text-gray-800'}`}>
+                    {priorityConfig?.label || 'NONE'}
+                  </div>
 
-      {/* Scrollable Body */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar overflow-x-hidden relative z-10">
-        <div className="flex min-h-full">
-           {/* Sidebar Column */}
-           <div className="w-[250px] shrink-0 border-r-2 border-gray-900 bg-gray-100 z-20 sticky left-0">
+                  {/* 負責人頭像 */}
+                  <div className={`w-8 h-8 bg-black text-white text-[10px] font-bold flex items-center justify-center border border-gray-900 mr-2 shrink-0`}>
+                    {getInitials(task.owner)}
+                  </div>
+
+                  {/* 任務名稱 */}
+                  <span className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors truncate uppercase">{task.name}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Right Gantt Area */}
+          <div className="relative flex-1">
+            
+            {/* Grid Lines (Background) */}
+            <div className="absolute inset-0 flex pointer-events-none z-0">
+              {Array.from({ length: daysInMonth }).map((_, j) => (
+                <div
+                  key={j}
+                  className={`w-12 shrink-0 border-r border-gray-300 h-full
+                    ${j === todayOffset ? 'bg-blue-50/50' : j % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
+                />
+              ))}
+            </div>
+
+            {/* Today Line Indicator */}
+            <div
+              className="absolute top-0 bottom-0 z-20 pointer-events-none border-l-2 border-cyan-500 border-solid"
+              style={{ left: `${todayOffset * dayWidth + dayWidth / 2}px` }}
+            >
+              <div className="absolute -top-1 -left-[5px] w-2.5 h-2.5 bg-cyan-500 border border-gray-900" />
+            </div>
+
+            {/* Task Bars (Foreground) */}
+            <div className="relative z-10 w-full">
               {processedTasks.map((task) => {
-                const priorityConfig = task.priority ? PRIORITY_CONFIG[task.priority] : null;
+                // 計算條狀位置和寬度
+                const barLeft = task.offsetDays * dayWidth;
+                const barWidth = Math.max(task.duration * dayWidth, 48); // 最小寬度 48px
 
                 return (
-                  <div
-                    key={task.id}
-                    className="h-14 flex items-center px-3 border-b border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer group"
-                    onClick={() => onTaskClick(task)}
-                  >
-                     {/* 優先級文字標籤 */}
-                     <div className={`px-2 py-1 border border-gray-900 text-[10px] font-bold mr-2 shrink-0 ${priorityConfig ? `${priorityConfig.bgColor} ${priorityConfig.textColor}` : 'bg-gray-200 text-gray-800'}`}>
-                       {priorityConfig?.label || 'NONE'}
-                     </div>
-
-                     {/* 負責人頭像 */}
-                     <div className={`w-8 h-8 bg-black text-white text-[10px] font-bold flex items-center justify-center border border-gray-900 mr-2 shrink-0`}>
-                        {getInitials(task.owner)}
-                     </div>
-
-                     {/* 任務名稱 */}
-                     <span className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors truncate uppercase">{task.name}</span>
+                  <div key={task.id} className="h-14 flex items-center relative">
+                    <motion.div
+                      layoutId={`task-${task.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onTaskClick(task);
+                      }}
+                      className={`absolute h-8 ${task.color} ${task.shadow} tech-bar flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:brightness-110 hover:scale-[1.02] active:scale-95 transition-all z-50`}
+                      style={{
+                        left: `${barLeft}px`,
+                        width: `${barWidth}px`
+                      }}
+                    >
+                      <span className="drop-shadow-md pointer-events-none relative z-10">
+                        {task.progress}%
+                      </span>
+                    </motion.div>
                   </div>
                 );
               })}
-           </div>
-
-           {/* Timeline Grid */}
-           <div className="flex-1 relative overflow-x-auto custom-scrollbar" style={{ scrollBehavior: 'smooth' }}>
-              <div className="flex h-full absolute inset-0 pointer-events-none z-0">
-                 {Array.from({ length: daysInMonth }).map((_, j) => (
-                    <div
-                      key={j}
-                      className={`w-12 shrink-0 border-l border-gray-300 h-full
-                        ${j === todayOffset ? 'bg-blue-100' : j % 2 === 0 ? 'bg-gray-50' : 'bg-white'}`}
-                    />
-                 ))}
-              </div>
-
-              <div className="relative py-0 z-10 h-full">
-                 {processedTasks.map((task) => {
-                    // 計算條狀位置和寬度
-                    const barLeft = task.offsetDays * dayWidth;
-                    const barWidth = Math.max(task.duration * dayWidth, 48); // 最小寬度 48px
-
-                    return (
-                      <div key={task.id} className="h-14 flex items-center relative">
-                         <motion.div
-                            layoutId={`task-${task.id}`}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              onTaskClick(task);
-                            }}
-                            className={`absolute h-8 ${task.color} ${task.shadow} tech-bar flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:brightness-110 hover:scale-[1.02] active:scale-95 transition-all z-50`}
-                            style={{
-                               left: `${barLeft}px`,
-                               width: `${barWidth}px`
-                            }}
-                         >
-                            <span className="drop-shadow-md pointer-events-none relative z-10">
-                              {task.progress}%
-                            </span>
-                         </motion.div>
-                      </div>
-                    );
-                 })}
-              </div>
-           </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

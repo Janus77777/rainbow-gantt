@@ -107,12 +107,37 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask }: DeliveryViewProps) => {
       className="space-y-6 pb-32 h-full flex flex-col pointer-events-auto"
     >
       {/* Top Bar */}
-      <div className="flex items-center justify-between shrink-0 px-2">
+      <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between shrink-0 px-2 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">SYS_GANTT_V2 // ACTIVE_PROJECTS</h1>
           <p className="text-gray-600 text-sm mt-1">OPERATIONAL_STATUS: ALL_SYSTEMS_GO</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+           {/* View Switcher - Retro Style */}
+           <div className="retro-panel p-1 flex gap-1 pointer-events-auto mr-2">
+              <button 
+                onClick={() => setViewMode('gantt')}
+                className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'gantt' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                <BarChart3 className="w-4 h-4 rotate-90"/>
+                GANTT
+              </button>
+              <button 
+                onClick={() => setViewMode('calendar')}
+                className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'calendar' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                <CalendarIcon className="w-4 h-4"/>
+                CALENDAR
+              </button>
+              <button 
+                onClick={() => setViewMode('list')}
+                className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'list' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                <List className="w-4 h-4"/>
+                LIST
+              </button>
+           </div>
+
            <button className="retro-btn p-3">
              <Search className="w-5 h-5" />
            </button>
@@ -131,6 +156,9 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask }: DeliveryViewProps) => {
         {(['all', 'ja', 'jo'] as OwnerFilter[]).map((filter) => {
           const config = OWNER_FILTER_CONFIG[filter];
           const isActive = ownerFilter === filter;
+          const count = filter === 'all'
+            ? tasks.filter(t => !t.isPoc && t.status !== 'completed').length
+            : filterTasksByOwner(tasks.filter(t => !t.isPoc && t.status !== 'completed'), filter).length;
           return (
             <button
               key={filter}
@@ -252,33 +280,6 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask }: DeliveryViewProps) => {
 
       {/* Main Content Area */}
       <div className="flex-1 min-h-[500px] flex flex-col relative z-10">
-         <div className="absolute top-0 right-0 z-20 flex gap-2 p-4">
-            {/* View Switcher - Retro Style */}
-            <div className="retro-panel p-1 flex gap-1 pointer-events-auto">
-               <button 
-                 onClick={() => setViewMode('gantt')}
-                 className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'gantt' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-               >
-                 <BarChart3 className="w-4 h-4 rotate-90"/>
-                 GANTT_CHART
-               </button>
-               <button 
-                 onClick={() => setViewMode('calendar')}
-                 className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'calendar' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-               >
-                 <CalendarIcon className="w-4 h-4"/>
-                 CALENDAR_VIEW
-               </button>
-               <button 
-                 onClick={() => setViewMode('list')}
-                 className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'list' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-               >
-                 <List className="w-4 h-4"/>
-                 LIST_VIEW
-               </button>
-            </div>
-         </div>
-
          <div className="flex-1 h-full relative">
             <AnimatePresence mode="wait">
               {viewMode === 'gantt' && (

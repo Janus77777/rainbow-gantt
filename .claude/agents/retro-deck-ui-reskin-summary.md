@@ -40,6 +40,7 @@
     *   All view titles and sub-texts (`DeliveryView`, `PocView`, `CompletedProjectsView`, `LearningView`) converted to uppercase English (e.g., "SYS_GANTT_V2 // ACTIVE_PROJECTS", "LOADING_DATA...", "NEW_TASK").
     *   All buttons and panel-like elements within these views (e.g., filter tabs, action buttons) refactored to use `retro-btn` and `retro-panel` classes, ensuring sharp corners and appropriate color schemes.
     *   Error messages updated to uppercase English.
+    *   **Bug Fix:** Relocated the `View Switcher` component from an absolute position overlaying the content area to the `Top Bar` of `DeliveryView`. This resolves a visual bug where the switcher obscured Gantt chart headers and caused flickering.
 
 *   **`NavigationIsland.tsx` (Bottom Navigation):**
     *   Outer container updated to `retro-panel` with no rounded corners.
@@ -48,6 +49,7 @@
 
 *   **`GanttChart.tsx`:**
     *   Outer `div` changed to `retro-panel`.
+    *   **Architecture Update:** Refactored DOM structure to a "Single Scroll Container" model. The Header Row and Sidebar are now `sticky` positioned within a single overflow container. This solves z-index stacking context issues where the header clipped task bars and ensures smooth, synchronized scrolling without layout jumps.
     *   `PRIORITY_CONFIG` and `getCategoryColors` updated to new color schemes.
     *   "Today Line" restyled to be sharper, with `border-cyan-500` and a square `bg-cyan-500` indicator.
     *   Header Row and Sidebar Column elements (`任務名稱`, priority labels, owner avatars, task names) updated for sharp borders, high contrast, and uppercase text.
