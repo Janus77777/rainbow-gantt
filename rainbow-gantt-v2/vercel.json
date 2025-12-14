@@ -9,5 +9,3 @@
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
-
-// Trigger rebuild: Mon Dec 15 07:12:07 CST 2025
