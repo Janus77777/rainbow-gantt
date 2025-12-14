@@ -1341,6 +1341,8 @@ const AppV2 = () => {
     return saved ? JSON.parse(saved) : ['Ja', 'Jo'];
   });
   const [newPersonName, setNewPersonName] = useState('');
+  const [editingPerson, setEditingPerson] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   // 連接真實後端數據
   const { tasks, isLoading, error, saveTasks, refetch } = useTasks();
@@ -1361,6 +1363,50 @@ const AppV2 = () => {
     const updated = people.filter(p => p !== name);
     setPeople(updated);
     localStorage.setItem('gantt-v2:people', JSON.stringify(updated));
+  };
+
+  const handleStartEdit = (person: string) => {
+    setEditingPerson(person);
+    setEditingName(person);
+  };
+
+  const handleSaveEdit = async (oldName: string) => {
+    const trimmed = editingName.trim();
+
+    // 驗證：不能為空，不能與現有名稱重複（除了自己）
+    if (!trimmed || (trimmed !== oldName && people.includes(trimmed))) {
+      setEditingPerson(null);
+      return;
+    }
+
+    // 如果名稱沒有變化，直接取消編輯
+    if (trimmed === oldName) {
+      setEditingPerson(null);
+      return;
+    }
+
+    // 更新 people 列表
+    const updatedPeople = people.map(p => p === oldName ? trimmed : p);
+    setPeople(updatedPeople);
+    localStorage.setItem('gantt-v2:people', JSON.stringify(updatedPeople));
+
+    // 更新所有相關任務的 owner
+    const updatedTasks = tasks.map(task => {
+      if (task.owner === oldName) {
+        return { ...task, owner: trimmed };
+      }
+      return task;
+    });
+
+    // 保存到後端
+    await saveTasks(updatedTasks);
+
+    setEditingPerson(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPerson(null);
+    setEditingName('');
   };
 
   const handleOpenTask = (task: Task | null) => {
@@ -1489,14 +1535,53 @@ const AppV2 = () => {
                   {/* 人員列表 */}
                   <div className="space-y-2 mb-3">
                     {people.map(person => (
-                      <div key={person} className="retro-panel-inner flex items-center justify-between p-2">
-                        <span className="font-bold text-gray-900 uppercase">{person}</span>
-                        <button
-                          onClick={() => handleDeletePerson(person)}
-                          className="retro-btn p-1 bg-red-500 text-white hover:bg-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div key={person} className="retro-panel-inner flex items-center justify-between p-2 gap-2">
+                        {editingPerson === person ? (
+                          // 編輯模式
+                          <>
+                            <input
+                              type="text"
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleSaveEdit(person);
+                                if (e.key === 'Escape') handleCancelEdit();
+                              }}
+                              onBlur={() => handleSaveEdit(person)}
+                              autoFocus
+                              className="flex-1 px-2 py-1 border-2 border-blue-500 bg-white text-sm font-bold text-gray-900 uppercase focus:outline-none"
+                            />
+                            <button
+                              onClick={() => handleSaveEdit(person)}
+                              className="retro-btn p-1 bg-green-500 text-white hover:bg-green-600"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={handleCancelEdit}
+                              className="retro-btn p-1 bg-gray-500 text-white hover:bg-gray-600"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </>
+                        ) : (
+                          // 顯示模式
+                          <>
+                            <span
+                              onClick={() => handleStartEdit(person)}
+                              className="flex-1 font-bold text-gray-900 uppercase cursor-pointer hover:text-blue-600 transition-colors"
+                              title="點擊編輯"
+                            >
+                              {person}
+                            </span>
+                            <button
+                              onClick={() => handleDeletePerson(person)}
+                              className="retro-btn p-1 bg-red-500 text-white hover:bg-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
