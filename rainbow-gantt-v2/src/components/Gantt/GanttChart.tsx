@@ -1,5 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Task, TaskPriority } from '../../types';
 
 // 計算兩個日期之間的天數差（end - start）
@@ -46,37 +47,76 @@ const getCategoryColors = (category: string) => {
 };
 
 export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick: (task: Task) => void }) => {
-  // 動態計算當前月份的時間範圍
-  const timelineStart = useMemo(() => {
+  // 月份狀態管理
+  const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
-  }, []);
+  });
+
+  const timelineStart = currentMonth;
 
   const daysInMonth = useMemo(() => {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  }, []);
+    return new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+  }, [currentMonth]);
 
-  // 計算今天在時間軸上的位置（0-indexed）
+  // 計算今天在時間軸上的位置（0-indexed），如果不在當前月則返回 -1
   const todayOffset = useMemo(() => {
     const now = new Date();
-    return now.getDate() - 1; // 1號 = index 0
-  }, []);
+    const isCurrentMonth = now.getFullYear() === currentMonth.getFullYear() &&
+                          now.getMonth() === currentMonth.getMonth();
+    return isCurrentMonth ? now.getDate() - 1 : -1;
+  }, [currentMonth]);
+
+  // 月份切換函數
+  const goToPrevMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonth(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const jumpToToday = () => {
+    const now = new Date();
+    setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+  };
+
+  // 格式化月份顯示
+  const monthLabel = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+    return `${month}_${year}`;
+  }, [currentMonth]);
 
   const dayWidth = 48;
 
   const processedTasks = useMemo(() => {
+    const monthStart = timelineStart;
+    const monthEnd = new Date(timelineStart.getFullYear(), timelineStart.getMonth() + 1, 0);
+
     return tasks
       .filter(t => !t.isPoc) // 只顯示非 POC 任務
+      .filter(t => {
+        // 過濾：只顯示與當前月份有重疊的任務
+        const taskStart = new Date(t.startDate);
+        const taskEnd = new Date(t.endDate);
+        return taskEnd >= monthStart && taskStart <= monthEnd;
+      })
       .map(t => {
         const taskStart = new Date(t.startDate);
         const taskEnd = new Date(t.endDate);
 
-        // 計算任務開始日期相對於月初的偏移天數
-        const offsetDays = getDaysDiff(timelineStart, taskStart);
+        // 判斷是否跨月
+        const startsBeforeMonth = taskStart < monthStart;
+        const endsAfterMonth = taskEnd > monthEnd;
 
-        // 計算任務持續天數（包含起始和結束當天）
-        const duration = getDaysDiff(taskStart, taskEnd) + 1;
+        // 裁切顯示範圍
+        const displayStart = startsBeforeMonth ? monthStart : taskStart;
+        const displayEnd = endsAfterMonth ? monthEnd : taskEnd;
+
+        // 計算顯示位置和長度
+        const offsetDays = getDaysDiff(monthStart, displayStart);
+        const duration = getDaysDiff(displayStart, displayEnd) + 1;
 
         const { color, shadow } = getCategoryColors(t.category);
 
@@ -85,13 +125,23 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
           offsetDays,
           duration,
           color,
-          shadow
+          shadow,
+          continueFromPrev: startsBeforeMonth,
+          continueToNext: endsAfterMonth,
         };
       })
-      // 排序：優先級 > 開始日期
+      // 排序：完成狀態 > 優先級 > 開始日期
       .sort((a, b) => {
+        // 1. 已完成的排最後
+        const aCompleted = a.status === 'completed' ? 1 : 0;
+        const bCompleted = b.status === 'completed' ? 1 : 0;
+        if (aCompleted !== bCompleted) return aCompleted - bCompleted;
+
+        // 2. 優先級
         const priorityDiff = getPriorityOrder(a.priority) - getPriorityOrder(b.priority);
         if (priorityDiff !== 0) return priorityDiff;
+
+        // 3. 開始日期
         return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
       });
   }, [tasks, timelineStart]);
@@ -99,7 +149,28 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
   return (
     <div className="retro-panel p-0 h-full overflow-auto custom-scrollbar relative">
       <div className="min-w-fit flex flex-col relative">
-        
+
+        {/* Month Navigation - Sticky Top */}
+        <div className="retro-panel p-2 flex items-center justify-between sticky top-0 z-50">
+          <button
+            onClick={goToPrevMonth}
+            className="retro-btn bg-gray-700 text-white px-4 py-2 hover:bg-gray-800"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="text-xs font-bold uppercase">PREV</span>
+          </button>
+
+          <span className="text-lg font-bold text-gray-900 uppercase tracking-wider">{monthLabel}</span>
+
+          <button
+            onClick={goToNextMonth}
+            className="retro-btn bg-gray-700 text-white px-4 py-2 hover:bg-gray-800"
+          >
+            <span className="text-xs font-bold uppercase">NEXT</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+
         {/* Header Row - Sticky Top */}
         <div className="sticky top-0 z-40 flex h-16 bg-gray-100 border-b-2 border-gray-900 shadow-sm">
           {/* Corner (Task Name) - Sticky Left + Top */}
@@ -150,7 +221,9 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                   </div>
 
                   {/* 任務名稱 */}
-                  <span className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors truncate uppercase">{task.name}</span>
+                  <span className="text-sm font-bold text-gray-800 group-hover:text-blue-600 transition-colors truncate uppercase">
+                    {task.name}
+                  </span>
                 </div>
               );
             })}
@@ -170,13 +243,15 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
               ))}
             </div>
 
-            {/* Today Line Indicator */}
-            <div
-              className="absolute top-0 bottom-0 z-20 pointer-events-none border-l-2 border-cyan-500 border-solid"
-              style={{ left: `${todayOffset * dayWidth + dayWidth / 2}px` }}
-            >
-              <div className="absolute -top-1 -left-[5px] w-2.5 h-2.5 bg-cyan-500 border border-gray-900" />
-            </div>
+            {/* Today Line Indicator - Only show if in current month */}
+            {todayOffset >= 0 && (
+              <div
+                className="absolute top-0 bottom-0 z-20 pointer-events-none border-l-2 border-cyan-500 border-solid"
+                style={{ left: `${todayOffset * dayWidth + dayWidth / 2}px` }}
+              >
+                <div className="absolute -top-1 -left-[5px] w-2.5 h-2.5 bg-cyan-500 border border-gray-900" />
+              </div>
+            )}
 
             {/* Task Bars (Foreground) */}
             <div className="relative z-10 w-full">
@@ -200,8 +275,14 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                         width: `${barWidth}px`
                       }}
                     >
-                      <span className="drop-shadow-md pointer-events-none relative z-10">
-                        {task.progress}%
+                      <span className="drop-shadow-md pointer-events-none relative z-10 flex items-center justify-between w-full px-2">
+                        {(task as any).continueFromPrev ? (
+                          <span className="text-[10px] text-red-400">← from上月</span>
+                        ) : <span></span>}
+                        <span>{task.progress}%</span>
+                        {(task as any).continueToNext ? (
+                          <span className="text-[10px] text-red-400">to下月 →</span>
+                        ) : <span></span>}
                       </span>
                     </motion.div>
                   </div>

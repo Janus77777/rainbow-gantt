@@ -6,7 +6,7 @@ import { ContextPanel } from './components/ui/ContextPanel';
 import { useTasks } from './hooks/useTasks';
 import { useNotes, LearningNote } from './hooks/useNotes';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle } from 'lucide-react';
+import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle, Settings } from 'lucide-react';
 import { Task, TaskCategory, Material } from './types';
 
 // Retro Panel Component
@@ -37,24 +37,17 @@ interface DeliveryViewProps {
   tasks: Task[];
   isLoading: boolean;
   onOpenTask: (task: Task | null) => void;
+  people: string[];
 }
 
-type OwnerFilter = 'all' | 'ja' | 'jo';
-
-const OWNER_FILTER_CONFIG = {
-  all: { label: 'ALL', color: 'bg-gray-500', hover: 'hover:bg-gray-600', text: 'text-white' },
-  ja: { label: 'JA', color: 'bg-fuchsia-500', hover: 'hover:bg-fuchsia-600', text: 'text-white' },
-  jo: { label: 'JO', color: 'bg-cyan-500', hover: 'hover:bg-cyan-600', text: 'text-white' },
-};
-
-const filterTasksByOwner = (tasks: Task[], filter: OwnerFilter) => {
+const filterTasksByOwner = (tasks: Task[], filter: string) => {
   if (filter === 'all') return tasks;
-  return tasks.filter(t => (t.owner || '').toLowerCase().includes(filter));
+  return tasks.filter(t => (t.owner || '').toLowerCase() === filter.toLowerCase());
 };
 
-const DeliveryView = ({ tasks, isLoading, onOpenTask }: DeliveryViewProps) => {
+const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProps) => {
   const [viewMode, setViewMode] = useState<'gantt' | 'calendar' | 'list'>('gantt');
-  const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>('all');
+  const [ownerFilter, setOwnerFilter] = useState<string>('all');
 
   // 根據 owner 篩選任務
   const filteredTasks = useMemo(() => filterTasksByOwner(tasks, ownerFilter), [tasks, ownerFilter]);
@@ -146,26 +139,31 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask }: DeliveryViewProps) => {
              className="retro-btn bg-cyan-500 text-white px-6 py-3 hover:bg-cyan-600"
            >
              <Plus className="w-5 h-5" />
-             <span>新任務</span>
+             <span>NEW_TASK</span>
            </button>
         </div>
       </div>
 
       {/* Owner Filter Tabs */}
-      <div className="flex items-center justify-center gap-2 shrink-0">
-        {(['all', 'ja', 'jo'] as OwnerFilter[]).map((filter) => {
-          const config = OWNER_FILTER_CONFIG[filter];
+      <div className="flex items-center justify-center gap-2 shrink-0 flex-wrap">
+        {['all', ...people].map((filter) => {
           const isActive = ownerFilter === filter;
           const count = filter === 'all'
-            ? tasks.filter(t => !t.isPoc && t.status !== 'completed').length
-            : filterTasksByOwner(tasks.filter(t => !t.isPoc && t.status !== 'completed'), filter).length;
+            ? tasks.filter(t => !t.isPoc).length
+            : filterTasksByOwner(tasks.filter(t => !t.isPoc), filter).length;
+
+          // 動態配色
+          const colors = filter === 'all'
+            ? { bg: 'bg-gray-500', hover: 'hover:bg-gray-600' }
+            : { bg: 'bg-blue-500', hover: 'hover:bg-blue-600' };
+
           return (
             <button
               key={filter}
               onClick={() => setOwnerFilter(filter)}
-              className={`retro-btn relative px-5 py-2 text-sm ${config.color} ${config.text} ${config.hover} ${isActive ? 'bg-black text-white' : ''}`}
+              className={`retro-btn relative px-5 py-2 text-sm text-white ${colors.bg} ${colors.hover} ${isActive ? 'bg-black' : ''}`}
             >
-              {config.label}
+              {filter.toUpperCase()}
               <span className={`ml-2 px-2 py-0.5 text-xs ${isActive ? 'bg-white text-black' : 'bg-gray-200 text-gray-700'}`}>
                 {count}
               </span>
@@ -514,10 +512,11 @@ interface CompletedProjectsViewProps {
   isLoading: boolean;
   onOpenTask: (task: Task | null) => void;
   onDeleteTask: (taskId: string | number) => void;
+  people: string[];
 }
 
-const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onDeleteTask }: CompletedProjectsViewProps) => {
-  const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>('all');
+const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onDeleteTask, people }: CompletedProjectsViewProps) => {
+  const [ownerFilter, setOwnerFilter] = useState<string>('all');
 
   // 所有已完成的非 POC 任務
   const allCompletedTasks = useMemo(() =>
@@ -586,20 +585,25 @@ const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onDeleteTask }: C
       </div>
 
       {/* Owner Filter Tabs */}
-      <div className="flex items-center justify-center gap-2 shrink-0">
-        {(['all', 'ja', 'jo'] as OwnerFilter[]).map((filter) => {
-          const config = OWNER_FILTER_CONFIG[filter];
+      <div className="flex items-center justify-center gap-2 shrink-0 flex-wrap">
+        {['all', ...people].map((filter) => {
           const isActive = ownerFilter === filter;
           const count = filter === 'all'
             ? allCompletedTasks.length
-            : allCompletedTasks.filter(t => (t.owner || '').toLowerCase().includes(filter)).length;
+            : allCompletedTasks.filter(t => (t.owner || '').toLowerCase() === filter.toLowerCase()).length;
+
+          // 動態配色
+          const colors = filter === 'all'
+            ? { bg: 'bg-gray-500', hover: 'hover:bg-gray-600' }
+            : { bg: 'bg-blue-500', hover: 'hover:bg-blue-600' };
+
           return (
             <button
               key={filter}
               onClick={() => setOwnerFilter(filter)}
-              className={`retro-btn relative px-5 py-2 text-sm ${config.color} ${config.text} ${config.hover} ${isActive ? 'bg-black text-white' : ''}`}
+              className={`retro-btn relative px-5 py-2 text-sm text-white ${colors.bg} ${colors.hover} ${isActive ? 'bg-black' : ''}`}
             >
-              {config.label}
+              {filter.toUpperCase()}
               <span className={`ml-2 px-2 py-0.5 text-xs ${isActive ? 'bg-white text-black' : 'bg-gray-200 text-gray-700'}`}>
                 {count}
               </span>
@@ -1329,10 +1333,35 @@ const AppV2 = () => {
   const [activeView, setActiveView] = useState<ViewType>('active');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // 人員管理狀態
+  const [people, setPeople] = useState<string[]>(() => {
+    const saved = localStorage.getItem('gantt-v2:people');
+    return saved ? JSON.parse(saved) : ['Ja', 'Jo'];
+  });
+  const [newPersonName, setNewPersonName] = useState('');
 
   // 連接真實後端數據
   const { tasks, isLoading, error, saveTasks, refetch } = useTasks();
   const { notes, isLoading: isLoadingNotes, addNote, updateNote, deleteNote } = useNotes();
+
+  // 人員管理函數
+  const handleAddPerson = () => {
+    const trimmed = newPersonName.trim();
+    if (!trimmed || people.includes(trimmed)) return;
+
+    const updated = [...people, trimmed];
+    setPeople(updated);
+    localStorage.setItem('gantt-v2:people', JSON.stringify(updated));
+    setNewPersonName('');
+  };
+
+  const handleDeletePerson = (name: string) => {
+    const updated = people.filter(p => p !== name);
+    setPeople(updated);
+    localStorage.setItem('gantt-v2:people', JSON.stringify(updated));
+  };
 
   const handleOpenTask = (task: Task | null) => {
     setSelectedTask(task);
@@ -1373,9 +1402,10 @@ const AppV2 = () => {
           {activeView === 'active' && (
             <DeliveryView
               key="active"
-              tasks={tasks.filter(t => !t.isPoc && t.status !== 'completed')}
+              tasks={tasks.filter(t => !t.isPoc)}
               isLoading={isLoading}
               onOpenTask={handleOpenTask}
+              people={people}
             />
           )}
           {activeView === 'completed' && (
@@ -1385,6 +1415,7 @@ const AppV2 = () => {
               isLoading={isLoading}
               onOpenTask={handleOpenTask}
               onDeleteTask={handleDeleteTask}
+              people={people}
             />
           )}
           {activeView === 'poc' && (
@@ -1411,6 +1442,89 @@ const AppV2 = () => {
       </div>
 
       <NavigationIsland activeView={activeView} onChangeView={setActiveView} />
+
+      {/* 設定按鈕 - Fixed 右上角 */}
+      <button
+        onClick={() => setIsSettingsOpen(true)}
+        className="retro-btn fixed top-6 right-6 z-50 p-3 bg-white text-gray-800 hover:bg-gray-100"
+      >
+        <Settings className="w-6 h-6" />
+      </button>
+
+      {/* 設定面板 */}
+      <AnimatePresence>
+        {isSettingsOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsSettingsOpen(false)}
+              className="fixed inset-0 bg-black/50 z-60"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="retro-panel fixed top-0 right-0 bottom-0 w-full md:w-96 z-70 flex flex-col"
+            >
+              {/* Header */}
+              <div className="p-4 border-b-2 border-gray-900 bg-gray-100 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-gray-900 uppercase">SETTINGS</h2>
+                <button
+                  onClick={() => setIsSettingsOpen(false)}
+                  className="retro-btn p-2 text-gray-700 hover:bg-gray-200"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-6">
+                {/* 人員管理 */}
+                <div>
+                  <h3 className="text-sm font-bold text-gray-600 uppercase mb-3">PEOPLE_MANAGEMENT</h3>
+
+                  {/* 人員列表 */}
+                  <div className="space-y-2 mb-3">
+                    {people.map(person => (
+                      <div key={person} className="retro-panel-inner flex items-center justify-between p-2">
+                        <span className="font-bold text-gray-900 uppercase">{person}</span>
+                        <button
+                          onClick={() => handleDeletePerson(person)}
+                          className="retro-btn p-1 bg-red-500 text-white hover:bg-red-600"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* 新增人員 */}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newPersonName}
+                      onChange={(e) => setNewPersonName(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleAddPerson()}
+                      placeholder="NAME"
+                      className="flex-1 px-3 py-2 border-2 border-gray-400 bg-white text-sm focus:outline-none focus:border-blue-500 uppercase"
+                    />
+                    <button
+                      onClick={handleAddPerson}
+                      disabled={!newPersonName.trim()}
+                      className="retro-btn bg-blue-500 text-white px-4 py-2 hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isPanelOpen && (

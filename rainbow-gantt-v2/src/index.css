@@ -1,9 +1,9 @@
+/* Import JetBrains Mono font for a retro-tech feel */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import JetBrains Mono font for a retro-tech feel */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
 @layer base {
   body {
@@ -48,6 +48,41 @@
     box-shadow: 4px 4px 0px #1f2937; /* Hard shadow */
     border-radius: 0px; /* Sharp corners */
   }
+
+  /* Inner Retro Panel - Lighter background, subtle border, for sub-elements */
+  .retro-panel-inner {
+    background-color: #f9fafb; /* Light gray background for inner panels */
+    border: 1px solid #d1d5db; /* Lighter border */
+    box-shadow: 1px 1px 0px #d1d5db; /* Subtle shadow */
+    border-radius: 0px; /* Sharp corners */
+  }
+
+  /* Retro Button - for all interactive buttons */
+  .retro-btn {
+    border: 2px solid #1f2937; /* Dark border */
+    box-shadow: 2px 2px 0px #1f2937; /* Hard shadow */
+    border-radius: 0px; /* Sharp corners */
+    transition: all 0.1s ease-out; /* Smooth hover */
+    display: inline-flex; /* Ensure flex behavior */
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center items horizontally */
+    white-space: nowrap; /* Prevent text wrap */
+  }
+
+  .retro-btn:hover {
+    box-shadow: 3px 3px 0px #1f2937; /* Slightly larger shadow on hover */
+    transform: translate(-1px, -1px); /* Move up-left slightly */
+  }
+
+  .retro-btn:active {
+    box-shadow: 0px 0px 0px #1f2937; /* No shadow on click */
+    transform: translate(2px, 2px); /* Move down-right to simulate press */
+  }
+  .retro-btn:disabled {
+    box-shadow: none;
+    transform: none;
+  }
+
 
   /* Tech Bar - for Gantt chart tasks */
   .tech-bar {
