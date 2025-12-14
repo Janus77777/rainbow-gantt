@@ -105,7 +105,7 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">SYS_GANTT_V2 // ACTIVE_PROJECTS</h1>
           <p className="text-gray-600 text-sm mt-1">OPERATIONAL_STATUS: ALL_SYSTEMS_GO</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3 pr-16">
            {/* View Switcher - Retro Style */}
            <div className="retro-panel p-1 flex gap-1 pointer-events-auto mr-2">
               <button 
