@@ -9,5 +9,5 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  base: './', // Use relative paths for safety
+  base: '/', // Use absolute paths for Vercel deployment
 })
