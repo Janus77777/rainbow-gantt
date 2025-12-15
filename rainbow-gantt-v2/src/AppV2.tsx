@@ -365,7 +365,7 @@ const PocView = ({ tasks, isLoading, onOpenTask, onDeleteTask }: PocViewProps) =
       className="space-y-6 pb-32 pointer-events-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2 pr-16">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">DIAGNOSTIC // POC_PROTOCOL</h1>
           <p className="text-gray-600 text-sm mt-1">STATUS: EVALUATION_IN_PROGRESS</p>
@@ -570,7 +570,7 @@ const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onDeleteTask, peo
       className="space-y-6 pb-32 pointer-events-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2 pr-16">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">MISSION_LOG // COMPLETED_PROTOCOLS</h1>
           <p className="text-gray-600 text-sm mt-1">TOTAL_COMPLETED: {completedTasks.length}</p>
@@ -822,7 +822,7 @@ const LearningView = ({ tasks, notes, isLoadingNotes, onAddNote, onUpdateNote, o
       className="space-y-6 pb-32 pointer-events-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-2">
+      <div className="flex items-center justify-between px-2 pr-16">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">KNOWLEDGE_BASE // LOG_ENTRIES</h1>
           <p className="text-gray-600 text-sm mt-1">RESEARCH_LOG_STATUS: OPERATIONAL</p>
