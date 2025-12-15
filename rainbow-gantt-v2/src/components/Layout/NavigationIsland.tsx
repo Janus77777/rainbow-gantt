@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, CheckCircle, FlaskConical, BookOpen } from 'lucide-react';
+import { LayoutDashboard, CheckCircle, FlaskConical, BookOpen, Calendar } from 'lucide-react';
 
-type ViewType = 'active' | 'completed' | 'poc' | 'learning';
+type ViewType = 'active' | 'completed' | 'poc' | 'learning' | 'calendar';
 
 interface NavigationIslandProps {
   activeView: ViewType;
@@ -14,6 +14,7 @@ export const NavigationIsland: React.FC<NavigationIslandProps> = ({ activeView, 
     { id: 'active', icon: LayoutDashboard, label: 'ACTIVE_PROJECTS' },
     { id: 'completed', icon: CheckCircle, label: 'COMPLETED_LOG' },
     { id: 'poc', icon: FlaskConical, label: 'POC_PROTOCOLS' },
+    { id: 'calendar', icon: Calendar, label: 'CALENDAR' },
     { id: 'learning', icon: BookOpen, label: 'KNOWLEDGE_BASE' },
   ];
 

@@ -46,7 +46,7 @@ const filterTasksByOwner = (tasks: Task[], filter: string) => {
 };
 
 const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProps) => {
-  const [viewMode, setViewMode] = useState<'gantt' | 'calendar' | 'list'>('gantt');
+  const [viewMode, setViewMode] = useState<'gantt' | 'list'>('gantt');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
 
   // 根據 owner 篩選任務
@@ -108,21 +108,14 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
         <div className="flex flex-wrap items-center gap-3 pr-16">
            {/* View Switcher - Retro Style */}
            <div className="retro-panel p-1 flex gap-1 pointer-events-auto mr-2">
-              <button 
+              <button
                 onClick={() => setViewMode('gantt')}
                 className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'gantt' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
               >
                 <BarChart3 className="w-4 h-4 rotate-90"/>
                 GANTT
               </button>
-              <button 
-                onClick={() => setViewMode('calendar')}
-                className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'calendar' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
-              >
-                <CalendarIcon className="w-4 h-4"/>
-                CALENDAR
-              </button>
-              <button 
+              <button
                 onClick={() => setViewMode('list')}
                 className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'list' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
               >
@@ -289,17 +282,6 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
                   className="absolute inset-0 pointer-events-auto"
                 >
                   <GanttChart tasks={filteredTasks} onTaskClick={onOpenTask} />
-                </motion.div>
-              )}
-              {viewMode === 'calendar' && (
-                <motion.div
-                  key="calendar"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  className="absolute inset-0 pointer-events-auto"
-                >
-                  <CalendarView />
                 </motion.div>
               )}
               {viewMode === 'list' && (
@@ -1327,7 +1309,7 @@ const LearningView = ({ tasks, notes, isLoadingNotes, onAddNote, onUpdateNote, o
   );
 };
 
-type ViewType = 'active' | 'completed' | 'poc' | 'learning';
+type ViewType = 'active' | 'completed' | 'poc' | 'learning' | 'calendar';
 
 const AppV2 = () => {
   const [activeView, setActiveView] = useState<ViewType>('active');
@@ -1483,6 +1465,28 @@ const AppV2 = () => {
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}
             />
+          )}
+          {activeView === 'calendar' && (
+            <motion.div
+              key="calendar"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6 pb-32 h-full flex flex-col pointer-events-auto"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-2 pr-16">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">TIMELINE // CALENDAR_VIEW</h1>
+                  <p className="text-gray-600 text-sm mt-1">DUAL_CALENDAR_SYNC_STATUS: OPERATIONAL</p>
+                </div>
+              </div>
+
+              {/* Calendar Component - Full Screen */}
+              <div className="flex-1 min-h-0">
+                <CalendarView />
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
