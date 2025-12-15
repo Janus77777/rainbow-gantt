@@ -51167,11 +51167,6 @@ _**User**_
 
 _**User**_
 
-User provided an image (image/png).
-
-
-_**User**_
-
 [Image #1]小問題 這邊會遮擋 
 
 _**User**_
@@ -51192,6 +51187,11 @@ _**User**_
 _**User**_
 
 [Image #1]小問題 這邊會遮擋 
+
+_**User**_
+
+User provided an image (image/png).
+
 
 _**User**_
 
@@ -52914,10 +52914,53 @@ User provided an image (image/png).
 
 _**User**_
 
+[Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
+
+_**User**_
+
 User provided an image (image/png).
 
 
 _**User**_
+
+[Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
+
+_**User**_
+
+User provided an image (image/png).
+
+
+_**User**_
+
+User provided an image (image/png).
+
+
+_**User**_
+
+User provided an image (image/png).
+
+
+_**User**_
+
+User provided an image (image/png).
+
+
+_**User**_
+
+User provided an image (image/png).
+
+
+_**User**_
+
+[Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
+
+_**User**_
+
+User provided an image (image/png).
+
+User provided an image (image/png).
+
+User provided an image (image/png).
 
 [Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
 
@@ -52953,49 +52996,6 @@ User provided an image (image/png).
 _**User**_
 
 [Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
-
-_**User**_
-
-User provided an image (image/png).
-
-User provided an image (image/png).
-
-User provided an image (image/png).
-
-[Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
-
-_**User**_
-
-[Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
-
-_**User**_
-
-User provided an image (image/png).
-
-
-_**User**_
-
-User provided an image (image/png).
-
-
-_**User**_
-
-User provided an image (image/png).
-
-
-_**User**_
-
-User provided an image (image/png).
-
-
-_**User**_
-
-[Image #1][Image #2][Image #3]話說不覺得真的設計得很好看嗎 就說gemini前端真的有一手 這你還真的做不出來
-
-_**User**_
-
-User provided an image (image/png).
-
 
 _**User**_
 
@@ -69629,6 +69629,232 @@ Completing
 Common next commands:
 - `vercel inspect rainbow-gantt-v2-5hydzuo6r-janus-projects-f12c2f60.vercel.app --logs`
 - `vercel redeploy rainbow-gantt-v2-5hydzuo6r-janus-projects-f12c2f60.vercel.app`
+```
+</details></tool-use>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<think><details><summary>Thought Process</summary>
+部署完成！現在我應該提交代碼。
+</details></think>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<tool-use data-tool-type="bash" data-tool-name="Bash"><details>
+<summary>Tool use: **Bash**</summary>
+ Commit and push
+
+```bash
+git add -A && git commit -m "修復 Calendar 編輯模式顯示邏輯
+
+- 點擊日期進入編輯模式時，隱藏整個日曆
+- 編輯面板佔據全屏，獲得完整空間
+- 關閉編輯後返回日曆視圖
+- 使用條件渲染：{!selectedDate ? 日曆 : 編輯面板}
+- 移除 AnimatePresence 包裝（改用條件渲染）
+
+邏輯：編輯時不需要看到日曆，專注編輯內容
+
+🤖 Generated with Claude Code
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>" && git push origin master
+```
+
+```
+[master f93bf58] 修復 Calendar 編輯模式顯示邏輯
+ 6 files changed, 702 insertions(+), 94 deletions(-)
+ delete mode 100644 rainbow-gantt-v2/dist/assets/index-BYkF6laA.css
+ rename rainbow-gantt-v2/dist/assets/{index-Beu383Bg.js => index-DTYf0ukH.js} (95%)
+ create mode 100644 rainbow-gantt-v2/dist/assets/index-hRO4ekYi.css
+To https://github.com/Janus77777/rainbow-gantt.git
+   d40ef00..f93bf58  master -> master
+```
+</details></tool-use>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<think><details><summary>Thought Process</summary>
+完成！現在的邏輯是：
+1. 未選擇日期時：顯示完整日曆（一屏顯示所有日期）
+2. 點擊日期後：隱藏日曆，只顯示編輯面板（佔據全屏）
+3. 關閉編輯：返回日曆視圖這樣編輯時有足夠空間，不需要捲動，並且邏輯清晰：編輯時就是專注編輯，不需要看日曆。
+</details></think>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+✅ **修復完成！**
+
+## 改動邏輯
+
+**之前（錯誤）**：
+- 日曆在上方
+- 點擊日期後，編輯面板在下方展開
+- 兩者同時顯示 → 需要捲動
+
+**現在（正確）**：
+- **未選擇日期**：顯示完整日曆（一屏完整顯示）
+- **點擊日期後**：隱藏日曆，只顯示編輯面板（佔據全屏）
+- **關閉編輯**：返回日曆視圖
+
+## 實作方式
+
+使用條件渲染：
+```jsx
+{!selectedDate ? (
+  // 日曆視圖
+  <>
+    {/* 人員按鈕 + 月份導航 */}
+    {/* 日曆格子 */}
+  </>
+) : (
+  // 編輯模式 - 全屏
+  <motion.div className="h-full flex flex-col">
+    {/* 編輯面板內容 */}
+  </motion.div>
+)}
+```
+
+**結果**：編輯時專注編輯，有完整空間，不需要捲動！
+
+已部署到 https://rainbow-gantt-v2.vercel.app
+
+---
+
+_**User**_
+
+User provided an image (image/png).
+
+User provided an image (image/png).
+
+[Image #1][Image #2]能不能有辦法讓他日曆視圖時就完整顯示出來
+
+---
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<think><details><summary>Thought Process</summary>
+用戶想要在日曆視圖時，就能完整顯示內容，而不是像現在只顯示前兩行然後截斷。
+
+目前的問題：
+1. 日曆格子使用 `line-clamp-2`，只顯示2行
+2. 內容超過2行會被截斷，需要點進去才能看完整內容
+
+用戶希望：在日曆視圖時就能看到完整內容
+
+解決方案選項：
+1. 移除 `line-clamp-2`，讓內容完整顯示
+2. 增加格子高度以容納更多內容
+3. 調整字體大小和行高
+
+但問題是，如果每個格子都顯示完整內容，可能會導致：
+- 格子高度不一致
+- 有些格子會非常高
+- 可能又需要捲動
+
+我應該：
+1. 移除 `line-clamp-2` 限制
+2. 讓格子自動適應內容高度
+3. 可能需要添加 `overflow-y-auto` 讓單個格子可以捲動
+
+或者更好的方案：
+- 增加 line-clamp 從 2 行到 4-5 行
+- 調整格子的 flex 佈局，讓內容區域可以擴展
+</details></think>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+明白！你希望在日曆格子裡就能看到完整內容，不要被截斷成兩行。
+
+我來修改：
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<tool-use data-tool-type="write" data-tool-name="Edit"><details>
+<summary>Tool use: **Edit**</summary>
+
+```
+The file /Users/jill/Documents/coding_projects/專案/甘特圖專案管理/rainbow-gantt-v2/src/components/Gantt/CalendarView.tsx has been updated. Here's the result of running `cat -n` on a snippet of the edited file:
+   284→                  </span>
+   285→                )}
+   286→              </div>
+   287→
+   288→              {/* Content Preview - Full Display */}
+   289→              {entry?.content && (
+   290→                <div className="flex-1 mt-0.5 overflow-y-auto custom-scrollbar">
+   291→                  <p className="text-[9px] text-gray-700 leading-tight whitespace-pre-wrap">
+   292→                    {entry.content}
+   293→                  </p>
+   294→                </div>
+   295→              )}
+   296→
+   297→              {/* Has content indicator */}
+   298→              {hasContent && (
+   299→                <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border border-black bg-blue-500" />
+```
+</details></tool-use>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<think><details><summary>Thought Process</summary>
+好，我移除了 `line-clamp-2` 限制，並添加了 `overflow-y-auto` 和 `custom-scrollbar`，這樣如果內容太長，格子內部可以捲動。
+
+現在構建並部署。
+</details></think>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<tool-use data-tool-type="bash" data-tool-name="Bash"><details>
+<summary>Tool use: **Bash**</summary>
+ Build project
+
+`cd rainbow-gantt-v2 && npm run build`
+```
+> rainbow-gantt-v2@0.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1650 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.82 kB │ gzip:   0.46 kB
+dist/assets/index-hRO4ekYi.css   41.21 kB │ gzip:   7.35 kB
+dist/assets/index-VBSv4XRD.js   334.93 kB │ gzip: 101.19 kB
+✓ built in 1.72s
+```
+</details></tool-use>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<think><details><summary>Thought Process</summary>
+構建成功。現在部署。
+</details></think>
+
+_**Agent (claude-sonnet-4-5-20250929)**_
+
+<tool-use data-tool-type="bash" data-tool-name="Bash"><details>
+<summary>Tool use: **Bash**</summary>
+ Deploy to production
+
+`cd .. && vercel --prod --yes`
+```
+https://rainbow-gantt-v2-r3l3ysrav-janus-projects-f12c2f60.vercel.app
+Vercel CLI 48.6.0
+Retrieving project…
+Deploying janus-projects-f12c2f60/rainbow-gantt-v2
+Uploading [--------------------] (0.0B/3.3MB)
+Uploading [=====---------------] (843.2KB/3.3MB)
+Uploading [==========----------] (1.6MB/3.3MB)
+Uploading [===============-----] (2.5MB/3.3MB)
+Uploading [====================] (3.3MB/3.3MB)
+Inspect: https://vercel.com/janus-projects-f12c2f60/rainbow-gantt-v2/HdKrwwSmm7s5MvFPP4KAUrYCKmUj [5s]
+Production: https://rainbow-gantt-v2-r3l3ysrav-janus-projects-f12c2f60.vercel.app [5s]
+Queued
+Building
+Completing
+
+Common next commands:
+- `vercel inspect rainbow-gantt-v2-r3l3ysrav-janus-projects-f12c2f60.vercel.app --logs`
+- `vercel redeploy rainbow-gantt-v2-r3l3ysrav-janus-projects-f12c2f60.vercel.app`
 ```
 </details></tool-use>
 

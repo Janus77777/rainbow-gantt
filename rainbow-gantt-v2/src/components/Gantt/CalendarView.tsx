@@ -285,10 +285,10 @@ export const CalendarView = () => {
                 )}
               </div>
 
-              {/* Content Preview */}
+              {/* Content Preview - Full Display */}
               {entry?.content && (
-                <div className="flex-1 mt-0.5 overflow-hidden">
-                  <p className="text-[9px] text-gray-700 leading-tight line-clamp-2 whitespace-pre-wrap">
+                <div className="flex-1 mt-0.5 overflow-y-auto custom-scrollbar">
+                  <p className="text-[9px] text-gray-700 leading-tight whitespace-pre-wrap">
                     {entry.content}
                   </p>
                 </div>
