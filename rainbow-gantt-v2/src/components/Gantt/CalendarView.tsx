@@ -188,58 +188,59 @@ export const CalendarView = () => {
   };
 
   return (
-    <div className="retro-panel h-full flex flex-col overflow-hidden p-6">
-      {/* Person Tabs */}
-      <div className="flex items-center justify-center gap-2 mb-4 shrink-0">
-        {(['ja', 'jo'] as PersonType[]).map((person) => {
-          const config = PERSON_CONFIG[person];
-          const isActive = activePerson === person;
-          return (
-            <button
-              key={person}
-              onClick={() => handlePersonChange(person)}
-              className={`retro-btn relative px-6 py-2.5 font-bold text-sm uppercase transition-all ${
-                isActive
-                  ? `${config.color} text-white border-2 border-black`
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              {config.name}_CALENDAR
-            </button>
-          );
-        })}
-      </div>
+    <div className="retro-panel h-full flex flex-col overflow-hidden p-4">
+      {/* Compact Header with Person Tabs + Month Navigation */}
+      <div className="flex items-center justify-between mb-3 shrink-0">
+        {/* Person Tabs - Compact */}
+        <div className="flex items-center gap-2">
+          {(['ja', 'jo'] as PersonType[]).map((person) => {
+            const config = PERSON_CONFIG[person];
+            const isActive = activePerson === person;
+            return (
+              <button
+                key={person}
+                onClick={() => handlePersonChange(person)}
+                className={`retro-btn relative px-4 py-1.5 font-bold text-xs uppercase transition-all ${
+                  isActive
+                    ? `${config.color} text-white border-2 border-black`
+                    : 'bg-white text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {config.name}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Calendar Header */}
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <h2 className="text-2xl font-bold text-gray-900 uppercase">{monthInfo.monthName}</h2>
-        <div className="flex gap-2">
+        {/* Month Display + Navigation */}
+        <div className="flex items-center gap-3">
           <button
             onClick={handlePrevMonth}
-            className="retro-btn p-2 bg-gray-200 text-gray-700 hover:bg-gray-300"
+            className="retro-btn p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
+          <h2 className="text-lg font-bold text-gray-900 uppercase min-w-[140px] text-center">{monthInfo.monthName}</h2>
           <button
             onClick={handleNextMonth}
-            className="retro-btn p-2 bg-gray-200 text-gray-700 hover:bg-gray-300"
+            className="retro-btn p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Grid Header */}
-      <div className="grid grid-cols-7 gap-2 mb-3 shrink-0">
+      <div className="grid grid-cols-7 gap-2 mb-2 shrink-0">
         {days.map(d => (
-          <div key={d} className="text-center text-sm font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300 pb-2">
+          <div key={d} className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300 pb-1">
             {d}
           </div>
         ))}
       </div>
 
-      {/* Grid Body */}
-      <div className="grid grid-cols-7 gap-3 flex-1 overflow-y-auto custom-scrollbar p-1">
+      {/* Grid Body - No scroll, fit to screen */}
+      <div className="grid grid-cols-7 gap-2 flex-1 min-h-0 p-1">
         {/* Empty slots for first week */}
         {Array.from({ length: monthInfo.firstDay }).map((_, i) => (
           <div key={`empty-${i}`} className="p-2" />
@@ -257,10 +258,10 @@ export const CalendarView = () => {
           return (
             <motion.div
               key={dayNum}
-              whileHover={{ y: -2 }}
+              whileHover={{ y: -1 }}
               onClick={() => handleDayClick(dayNum)}
               className={`
-                retro-panel p-3 transition-all duration-200 flex flex-col gap-1 overflow-hidden min-h-[100px] cursor-pointer relative
+                retro-panel p-2 transition-all duration-200 flex flex-col gap-0.5 overflow-hidden h-full cursor-pointer relative
                 ${isToday
                   ? 'border-blue-500 bg-blue-100'
                   : isSelected
@@ -270,13 +271,13 @@ export const CalendarView = () => {
                       : 'border-gray-300 hover:bg-gray-50'}
               `}
             >
-              <div className="flex justify-between items-start">
-                <span className={`text-sm font-bold uppercase ${isToday ? 'text-blue-800' : 'text-gray-800'}`}>
+              <div className="flex justify-between items-start shrink-0">
+                <span className={`text-xs font-bold uppercase ${isToday ? 'text-blue-800' : 'text-gray-800'}`}>
                   {dayNum}
                 </span>
                 {entry?.materials && entry.materials.length > 0 && (
-                  <span className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 border border-black bg-gray-200 text-gray-800 uppercase">
-                    <Paperclip className="w-2.5 h-2.5" />
+                  <span className="flex items-center gap-0.5 text-[9px] font-bold px-1 py-0.5 border border-black bg-gray-200 text-gray-800 uppercase">
+                    <Paperclip className="w-2 h-2" />
                     {entry.materials.length}
                   </span>
                 )}
@@ -284,8 +285,8 @@ export const CalendarView = () => {
 
               {/* Content Preview */}
               {entry?.content && (
-                <div className="flex-1 mt-1 overflow-hidden">
-                  <p className="text-[10px] text-gray-700 leading-relaxed line-clamp-3 whitespace-pre-wrap">
+                <div className="flex-1 mt-0.5 overflow-hidden">
+                  <p className="text-[9px] text-gray-700 leading-tight line-clamp-2 whitespace-pre-wrap">
                     {entry.content}
                   </p>
                 </div>
@@ -293,7 +294,7 @@ export const CalendarView = () => {
 
               {/* Has content indicator */}
               {hasContent && (
-                <div className="absolute bottom-1 right-1 w-2 h-2 border border-black bg-blue-500" />
+                <div className="absolute bottom-1 right-1 w-1.5 h-1.5 border border-black bg-blue-500" />
               )}
             </motion.div>
           );

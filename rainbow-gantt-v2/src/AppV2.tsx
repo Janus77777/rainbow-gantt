@@ -1472,18 +1472,18 @@ const AppV2 = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-6 pb-32 h-full flex flex-col pointer-events-auto"
+              className="pb-24 h-full flex flex-col pointer-events-auto"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between px-2 pr-16">
+              {/* Compact Header */}
+              <div className="flex items-center justify-between px-2 pr-16 mb-3 shrink-0">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">TIMELINE // CALENDAR_VIEW</h1>
-                  <p className="text-gray-600 text-sm mt-1">DUAL_CALENDAR_SYNC_STATUS: OPERATIONAL</p>
+                  <h1 className="text-2xl font-bold text-gray-900 tracking-tighter uppercase">TIMELINE // CALENDAR_VIEW</h1>
+                  <p className="text-gray-600 text-xs mt-0.5">DUAL_CALENDAR_SYNC_STATUS: OPERATIONAL</p>
                 </div>
               </div>
 
               {/* Calendar Component - Full Screen */}
-              <div className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <CalendarView />
               </div>
             </motion.div>
