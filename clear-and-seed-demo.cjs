@@ -130,7 +130,10 @@ const demoTasks = [
     endDate: '2025-12-25',
     description: '評估 DALL-E 3 和 Midjourney API 的整合可行性，測試生成速度、品質和成本效益。',
     isPoc: true,
-    stakeholders: ['產品團隊', '技術團隊']
+    stakeholders: [
+      { id: '1', name: '產品經理 Alex', role: '產品團隊' },
+      { id: '2', name: '技術主管 Bob', role: '技術團隊' }
+    ]
   },
   {
     id: 'demo-task-p2',
@@ -144,7 +147,10 @@ const demoTasks = [
     endDate: '2025-12-30',
     description: '驗證 WebSocket 在高併發場景下的穩定性，對比 Socket.io 和原生 WebSocket 方案。',
     isPoc: true,
-    stakeholders: ['後端團隊']
+    stakeholders: [
+      { id: '3', name: '後端工程師 Carol', role: '後端團隊' },
+      { id: '4', name: 'DevOps David', role: 'DevOps' }
+    ]
   },
   {
     id: 'demo-task-p3',
@@ -158,7 +164,10 @@ const demoTasks = [
     endDate: '2025-12-28',
     description: '測試 LRU、LFU、FIFO 三種緩存淘汰策略的性能表現，找出最適合的方案。',
     isPoc: true,
-    stakeholders: ['技術團隊', 'DevOps']
+    stakeholders: [
+      { id: '5', name: '架構師 Eric', role: '技術團隊' },
+      { id: '6', name: 'DBA Frank', role: 'DevOps' }
+    ]
   },
   {
     id: 'demo-task-p4',
@@ -172,7 +181,10 @@ const demoTasks = [
     endDate: '2026-01-05',
     description: '針對複雜查詢場景，對比 GraphQL 和 REST API 的響應時間、開發效率和維護成本。',
     isPoc: true,
-    stakeholders: ['前端團隊', '後端團隊']
+    stakeholders: [
+      { id: '7', name: '前端工程師 Grace', role: '前端團隊' },
+      { id: '8', name: '後端工程師 Henry', role: '後端團隊' }
+    ]
   },
   {
     id: 'demo-task-p5',
@@ -186,7 +198,10 @@ const demoTasks = [
     endDate: '2026-01-10',
     description: '探索使用 IPFS 和 Filecoin 進行去中心化數據存儲的可行性，評估成本和技術風險。',
     isPoc: true,
-    stakeholders: ['研發團隊']
+    stakeholders: [
+      { id: '9', name: '研發總監 Iris', role: '研發團隊' },
+      { id: '10', name: '安全專家 Jack', role: '資安團隊' }
+    ]
   }
 ];
 
