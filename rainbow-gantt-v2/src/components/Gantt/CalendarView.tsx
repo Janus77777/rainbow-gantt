@@ -189,58 +189,60 @@ export const CalendarView = () => {
 
   return (
     <div className="retro-panel h-full flex flex-col overflow-hidden p-4">
-      {/* Compact Header with Person Tabs + Month Navigation */}
-      <div className="flex items-center justify-between mb-3 shrink-0">
-        {/* Person Tabs - Compact */}
-        <div className="flex items-center gap-2">
-          {(['ja', 'jo'] as PersonType[]).map((person) => {
-            const config = PERSON_CONFIG[person];
-            const isActive = activePerson === person;
-            return (
+      {!selectedDate ? (
+        <>
+          {/* Compact Header with Person Tabs + Month Navigation */}
+          <div className="flex items-center justify-between mb-3 shrink-0">
+            {/* Person Tabs - Compact */}
+            <div className="flex items-center gap-2">
+              {(['ja', 'jo'] as PersonType[]).map((person) => {
+                const config = PERSON_CONFIG[person];
+                const isActive = activePerson === person;
+                return (
+                  <button
+                    key={person}
+                    onClick={() => handlePersonChange(person)}
+                    className={`retro-btn relative px-4 py-1.5 font-bold text-xs uppercase transition-all ${
+                      isActive
+                        ? `${config.color} text-white border-2 border-black`
+                        : 'bg-white text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    {config.name}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Month Display + Navigation */}
+            <div className="flex items-center gap-3">
               <button
-                key={person}
-                onClick={() => handlePersonChange(person)}
-                className={`retro-btn relative px-4 py-1.5 font-bold text-xs uppercase transition-all ${
-                  isActive
-                    ? `${config.color} text-white border-2 border-black`
-                    : 'bg-white text-gray-700 hover:bg-gray-100'
-                }`}
+                onClick={handlePrevMonth}
+                className="retro-btn p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300"
               >
-                {config.name}
+                <ChevronLeft className="w-4 h-4" />
               </button>
-            );
-          })}
-        </div>
-
-        {/* Month Display + Navigation */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handlePrevMonth}
-            className="retro-btn p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          <h2 className="text-lg font-bold text-gray-900 uppercase min-w-[140px] text-center">{monthInfo.monthName}</h2>
-          <button
-            onClick={handleNextMonth}
-            className="retro-btn p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Grid Header */}
-      <div className="grid grid-cols-7 gap-2 mb-2 shrink-0">
-        {days.map(d => (
-          <div key={d} className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300 pb-1">
-            {d}
+              <h2 className="text-lg font-bold text-gray-900 uppercase min-w-[140px] text-center">{monthInfo.monthName}</h2>
+              <button
+                onClick={handleNextMonth}
+                className="retro-btn p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        ))}
-      </div>
 
-      {/* Grid Body - No scroll, fit to screen */}
-      <div className="grid grid-cols-7 gap-2 flex-1 min-h-0 p-1">
+          {/* Grid Header */}
+          <div className="grid grid-cols-7 gap-2 mb-2 shrink-0">
+            {days.map(d => (
+              <div key={d} className="text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-300 pb-1">
+                {d}
+              </div>
+            ))}
+          </div>
+
+          {/* Grid Body - No scroll, fit to screen */}
+          <div className="grid grid-cols-7 gap-2 flex-1 min-h-0 p-1">
         {/* Empty slots for first week */}
         {Array.from({ length: monthInfo.firstDay }).map((_, i) => (
           <div key={`empty-${i}`} className="p-2" />
@@ -299,17 +301,16 @@ export const CalendarView = () => {
             </motion.div>
           );
         })}
-      </div>
-
-      {/* Selected Date Panel - 日記編輯 */}
-      <AnimatePresence>
-        {selectedDate && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="mt-4 p-0 retro-panel overflow-hidden flex flex-col"
-          >
+          </div>
+        </>
+      ) : (
+        /* Edit Mode - Full Screen */
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          className="h-full flex flex-col"
+        >
             <div className="flex items-center justify-between p-4 border-b-2 border-gray-900 bg-gray-100 shrink-0">
               <h3 className="font-bold text-lg text-gray-900 uppercase">
                 ENTRY_LOG // {formatDate(selectedDate)}
@@ -531,9 +532,8 @@ export const CalendarView = () => {
                                       </button>                </div>
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        </motion.div>
+      )}
 
       {/* Image Viewer Modal */}
       <AnimatePresence>
