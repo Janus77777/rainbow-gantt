@@ -1490,12 +1490,14 @@ const AppV2 = () => {
       <NavigationIsland activeView={activeView} onChangeView={setActiveView} />
 
       {/* 設定按鈕 - Fixed 右上角 */}
-      <button
-        onClick={() => setIsSettingsOpen(true)}
-        className="retro-btn fixed top-6 right-12 z-50 p-3 bg-white text-gray-800 hover:bg-gray-100"
-      >
-        <Settings className="w-6 h-6" />
-      </button>
+      {!isSettingsOpen && (
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="retro-btn fixed top-6 right-12 z-50 p-3 bg-white text-gray-800 hover:bg-gray-100"
+        >
+          <Settings className="w-6 h-6" />
+        </button>
+      )}
 
       {/* 設定面板 */}
       <AnimatePresence>
