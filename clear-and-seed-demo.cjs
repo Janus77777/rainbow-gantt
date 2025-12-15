@@ -5,6 +5,7 @@ const DEMO_API_URL = 'https://rainbow-gantt-demo.vercel.app/api';
 
 // Demo 假數據
 const demoTasks = [
+  // === ACTIVE PROJECTS (4個) ===
   {
     id: 'demo-task-1',
     name: '客戶需求分析系統',
@@ -30,54 +31,6 @@ const demoTasks = [
     type: 'active'
   },
   {
-    id: 'demo-task-3',
-    name: 'API 整合測試',
-    owner: 'Janus',
-    category: 'POC測試',
-    priority: 'urgent',
-    status: 'pending',
-    progress: 0,
-    startDate: '2025-12-15',
-    endDate: '2025-12-30',
-    type: 'poc'
-  },
-  {
-    id: 'demo-task-4',
-    name: '用戶體驗優化',
-    owner: 'Joseph',
-    category: '客戶開發',
-    priority: 'medium',
-    status: 'pending',
-    progress: 0,
-    startDate: '2025-12-18',
-    endDate: '2026-01-05',
-    type: 'active'
-  },
-  {
-    id: 'demo-task-5',
-    name: 'React 最佳實踐研究',
-    owner: 'Janus',
-    category: 'AI驅能',
-    priority: 'low',
-    status: 'completed',
-    progress: 100,
-    startDate: '2025-11-01',
-    endDate: '2025-11-15',
-    type: 'learning'
-  },
-  {
-    id: 'demo-task-6',
-    name: 'Vercel 部署流程優化',
-    owner: 'Joseph',
-    category: 'POC測試',
-    priority: 'medium',
-    status: 'completed',
-    progress: 100,
-    startDate: '2025-11-10',
-    endDate: '2025-11-25',
-    type: 'completed'
-  },
-  {
     id: 'demo-task-7',
     name: '數據可視化儀表板',
     owner: 'Janus',
@@ -100,6 +53,204 @@ const demoTasks = [
     startDate: '2025-12-20',
     endDate: '2026-01-10',
     type: 'active'
+  },
+
+  // === COMPLETED LOG (5個) ===
+  {
+    id: 'demo-task-c1',
+    name: '平台官網上線',
+    owner: 'Janus',
+    category: 'AI驅能',
+    priority: 'urgent',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-11-01',
+    endDate: '2025-11-20',
+    type: 'completed'
+  },
+  {
+    id: 'demo-task-c2',
+    name: 'SEO 優化實施',
+    owner: 'Joseph',
+    category: '品牌行銷',
+    priority: 'high',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-11-05',
+    endDate: '2025-11-18',
+    type: 'completed'
+  },
+  {
+    id: 'demo-task-c3',
+    name: '支付系統整合',
+    owner: 'Janus',
+    category: '客戶開發',
+    priority: 'urgent',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-10-15',
+    endDate: '2025-11-08',
+    type: 'completed'
+  },
+  {
+    id: 'demo-task-c4',
+    name: '用戶反饋收集系統',
+    owner: 'Joseph',
+    category: 'AI驅能',
+    priority: 'medium',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-10-20',
+    endDate: '2025-11-15',
+    type: 'completed'
+  },
+  {
+    id: 'demo-task-c5',
+    name: 'Email 通知功能',
+    owner: 'Janus',
+    category: '客戶開發',
+    priority: 'medium',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-11-08',
+    endDate: '2025-11-22',
+    type: 'completed'
+  },
+
+  // === POC PROTOCOLS (5個) ===
+  {
+    id: 'demo-task-p1',
+    name: 'AI 圖片生成引擎測試',
+    owner: 'Janus',
+    category: 'AI驅能',
+    priority: 'urgent',
+    status: 'in_progress',
+    progress: 65,
+    startDate: '2025-12-08',
+    endDate: '2025-12-25',
+    type: 'poc'
+  },
+  {
+    id: 'demo-task-p2',
+    name: 'WebSocket 即時通訊驗證',
+    owner: 'Joseph',
+    category: 'POC測試',
+    priority: 'high',
+    status: 'pending',
+    progress: 0,
+    startDate: '2025-12-15',
+    endDate: '2025-12-30',
+    type: 'poc'
+  },
+  {
+    id: 'demo-task-p3',
+    name: 'Redis 緩存策略評估',
+    owner: 'Janus',
+    category: 'POC測試',
+    priority: 'medium',
+    status: 'in_progress',
+    progress: 40,
+    startDate: '2025-12-10',
+    endDate: '2025-12-28',
+    type: 'poc'
+  },
+  {
+    id: 'demo-task-p4',
+    name: 'GraphQL vs REST 性能對比',
+    owner: 'Joseph',
+    category: 'POC測試',
+    priority: 'low',
+    status: 'pending',
+    progress: 0,
+    startDate: '2025-12-18',
+    endDate: '2026-01-05',
+    type: 'poc'
+  },
+  {
+    id: 'demo-task-p5',
+    name: '區塊鏈數據存儲可行性',
+    owner: 'Janus',
+    category: 'POC測試',
+    priority: 'low',
+    status: 'pending',
+    progress: 0,
+    startDate: '2025-12-20',
+    endDate: '2026-01-10',
+    type: 'poc'
+  },
+
+  // === KNOWLEDGE BASE (6個) ===
+  {
+    id: 'demo-task-l1',
+    name: 'React 18 新特性學習',
+    owner: 'Janus',
+    category: 'AI驅能',
+    priority: 'medium',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-10-01',
+    endDate: '2025-10-15',
+    type: 'learning'
+  },
+  {
+    id: 'demo-task-l2',
+    name: 'TypeScript 進階技巧',
+    owner: 'Joseph',
+    category: 'AI驅能',
+    priority: 'high',
+    status: 'completed',
+    progress: 100,
+    startDate: '2025-10-08',
+    endDate: '2025-10-22',
+    type: 'learning'
+  },
+  {
+    id: 'demo-task-l3',
+    name: 'Tailwind CSS 最佳實踐',
+    owner: 'Janus',
+    category: '品牌行銷',
+    priority: 'medium',
+    status: 'in_progress',
+    progress: 70,
+    startDate: '2025-11-15',
+    endDate: '2025-12-05',
+    type: 'learning'
+  },
+  {
+    id: 'demo-task-l4',
+    name: 'Framer Motion 動畫設計',
+    owner: 'Joseph',
+    category: '品牌行銷',
+    priority: 'low',
+    status: 'in_progress',
+    progress: 50,
+    startDate: '2025-11-20',
+    endDate: '2025-12-10',
+    type: 'learning'
+  },
+  {
+    id: 'demo-task-l5',
+    name: 'Node.js 性能優化',
+    owner: 'Janus',
+    category: 'AI驅能',
+    priority: 'high',
+    status: 'pending',
+    progress: 0,
+    startDate: '2025-12-15',
+    endDate: '2025-12-30',
+    type: 'learning'
+  },
+  {
+    id: 'demo-task-l6',
+    name: 'Vercel Serverless 深入研究',
+    owner: 'Joseph',
+    category: 'POC測試',
+    priority: 'medium',
+    status: 'pending',
+    progress: 0,
+    startDate: '2025-12-18',
+    endDate: '2026-01-05',
+    type: 'learning'
   }
 ];
 
