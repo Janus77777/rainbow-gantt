@@ -1,7 +1,0 @@
-{
-  "framework": "vite",
-  "installCommand": "npm install",
-  "buildCommand": "npx vite build --config vite.config.v2.ts",
-  "outputDirectory": "dist-v2",
-  "cleanUrls": true
-}

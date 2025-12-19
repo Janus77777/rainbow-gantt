@@ -1,6 +1,7 @@
 {
-  "name": "rainbow-gantt",
-  "version": "2.0.0",
+  "name": "rainbow-gantt-v2",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -8,18 +9,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "clsx": "^2.1.1",
-    "framer-motion": "^12.23.25",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.3",
+    "@upstash/redis": "^1.35.7",
+    "@vercel/kv": "^3.0.0",
+    "clsx": "^2.0.0",
+    "framer-motion": "^10.16.4",
     "lucide-react": "^0.292.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tailwind-merge": "^2.6.0"
+    "redis": "^5.10.0",
+    "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.37",
     "@types/react-dom": "^18.2.15",
+    "@vercel/node": "^5.5.15",
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
