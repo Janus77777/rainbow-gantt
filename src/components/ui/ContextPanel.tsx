@@ -549,6 +549,35 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
             </div>
           </div>
 
+          {/* 合作類型 */}
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+              合作類型
+            </label>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditedTask(prev => ({ ...prev, collaborationType: 'solo' }))}
+                className={`flex-1 py-2 px-3 border-2 border-slate-300 rounded-lg text-sm font-bold uppercase transition-all ${
+                  editedTask.collaborationType === 'solo'
+                    ? 'bg-blue-500 text-white border-blue-500'
+                    : 'bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                🙋 獨立
+              </button>
+              <button
+                onClick={() => setEditedTask(prev => ({ ...prev, collaborationType: 'team' }))}
+                className={`flex-1 py-2 px-3 border-2 border-slate-300 rounded-lg text-sm font-bold uppercase transition-all ${
+                  editedTask.collaborationType === 'team'
+                    ? 'bg-orange-500 text-white border-orange-500'
+                    : 'bg-white text-slate-700 hover:bg-slate-50'
+                }`}
+              >
+                👥 合作
+              </button>
+            </div>
+          </div>
+
           {/* 相關人 */}
           <div>
             <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">

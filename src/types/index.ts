@@ -1,6 +1,7 @@
 export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'unpublished' | 'blocked';
 export type TaskCategory = 'AI賦能' | '流程優化' | '產品行銷' | '品牌行銷' | '客戶開發' | string;
 export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low';
+export type CollaborationType = 'solo' | 'team';
 
 export interface Material {
   id: string | number;
@@ -42,6 +43,7 @@ export interface Task {
   isPoc?: boolean;
   priority?: TaskPriority;  // 優先級：urgent > high > medium > low
   comments?: TaskComment[]; // 備註/意見
+  collaborationType?: CollaborationType;  // 合作類型：solo | team
 }
 
 export interface WorkspaceSettings {

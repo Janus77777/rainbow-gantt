@@ -215,6 +215,13 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                     {priorityConfig?.label || 'NONE'}
                   </div>
 
+                  {/* 合作類型圖標 */}
+                  {task.collaborationType && (
+                    <div className="mr-2 text-base shrink-0">
+                      {task.collaborationType === 'team' ? '👥' : '🙋'}
+                    </div>
+                  )}
+
                   {/* 負責人頭像 */}
                   <div className={`w-8 h-8 bg-black text-white text-[10px] font-bold flex items-center justify-center border border-gray-900 mr-2 shrink-0`}>
                     {getInitials(task.owner)}
