@@ -1,4 +1,4 @@
-import { Redis } from '@upstash/redis';
+import { createClient } from 'redis';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const ATTACHMENT_PREFIX = 'gantt-v2:attachment:';
@@ -26,15 +26,21 @@ export const config = {
   },
 };
 
-let redis: Redis | null = null;
-function getRedis() {
-  if (!redis) {
-    redis = new Redis({
-      url: process.env.KV_REST_API_URL!,
-      token: process.env.KV_REST_API_TOKEN!,
+let redisClient: any = null;
+
+async function getRedis() {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: process.env.REDIS_URL,
     });
+
+    redisClient.on('error', (err: any) => console.error('Redis Client Error', err));
+
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
   }
-  return redis;
+  return redisClient;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -51,25 +57,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   try {
-    const db = getRedis();
+    const db = await getRedis();
 
     switch (req.method) {
       case 'GET': {
         const attachmentId = req.query.id as string;
 
         if (!attachmentId) {
-          const index = await db.get<AttachmentMeta[]>(ATTACHMENT_INDEX_KEY) || [];
+          const data = await db.get(ATTACHMENT_INDEX_KEY);
+          const index: AttachmentMeta[] = data ? JSON.parse(data) : [];
           return res.status(200).json({ attachments: index });
         }
 
-        const data = await db.get<{ meta: AttachmentMeta; dataUrl: string }>(
-          `${ATTACHMENT_PREFIX}${attachmentId}`
-        );
+        const attachmentData = await db.get(`${ATTACHMENT_PREFIX}${attachmentId}`);
 
-        if (!data) {
+        if (!attachmentData) {
           return res.status(404).json({ error: 'Attachment not found' });
         }
 
+        const data: { meta: AttachmentMeta; dataUrl: string } = JSON.parse(attachmentData);
         return res.status(200).json(data);
       }
 
@@ -96,11 +102,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           createdAt: new Date().toISOString(),
         };
 
-        await db.set(`${ATTACHMENT_PREFIX}${id}`, { meta, dataUrl });
+        await db.set(`${ATTACHMENT_PREFIX}${id}`, JSON.stringify({ meta, dataUrl }));
 
-        const index = await db.get<AttachmentMeta[]>(ATTACHMENT_INDEX_KEY) || [];
+        const indexData = await db.get(ATTACHMENT_INDEX_KEY);
+        const index: AttachmentMeta[] = indexData ? JSON.parse(indexData) : [];
         index.push(meta);
-        await db.set(ATTACHMENT_INDEX_KEY, index);
+        await db.set(ATTACHMENT_INDEX_KEY, JSON.stringify(index));
 
         return res.status(201).json({ attachment: meta, dataUrl });
       }
@@ -113,9 +120,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         await db.del(`${ATTACHMENT_PREFIX}${attachmentId}`);
 
-        const index = await db.get<AttachmentMeta[]>(ATTACHMENT_INDEX_KEY) || [];
+        const indexData = await db.get(ATTACHMENT_INDEX_KEY);
+        const index: AttachmentMeta[] = indexData ? JSON.parse(indexData) : [];
         const filtered = index.filter(a => a.id !== attachmentId);
-        await db.set(ATTACHMENT_INDEX_KEY, filtered);
+        await db.set(ATTACHMENT_INDEX_KEY, JSON.stringify(filtered));
 
         return res.status(200).json({ success: true });
       }
@@ -125,6 +133,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     console.error('Attachments API error:', error);
-    return res.status(500).json({ error: 'Internal server error', details: String(error) });
+    return res.status(500).json({
+      error: 'Internal server error',
+      details: String(error),
+    });
   }
 }

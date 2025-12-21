@@ -1,4 +1,4 @@
-import { Redis } from '@upstash/redis';
+import { createClient } from 'redis';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const NOTES_KEY = 'gantt-v2:notes';
@@ -9,15 +9,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-let redis: Redis | null = null;
-function getRedis() {
-  if (!redis) {
-    redis = new Redis({
-      url: process.env.KV_REST_API_URL!,
-      token: process.env.KV_REST_API_TOKEN!,
+let redisClient: any = null;
+
+async function getRedis() {
+  if (!redisClient) {
+    redisClient = createClient({
+      url: process.env.REDIS_URL,
     });
+
+    redisClient.on('error', (err: any) => console.error('Redis Client Error', err));
+
+    if (!redisClient.isOpen) {
+      await redisClient.connect();
+    }
   }
-  return redis;
+  return redisClient;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -33,11 +39,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   try {
-    const db = getRedis();
+    const db = await getRedis();
 
     switch (req.method) {
       case 'GET': {
-        const notes = await db.get(NOTES_KEY) || [];
+        const data = await db.get(NOTES_KEY);
+        const notes = data ? JSON.parse(data) : [];
         return res.status(200).json({ notes });
       }
 
@@ -47,7 +54,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Note title is required' });
         }
 
-        const notes: any[] = await db.get(NOTES_KEY) || [];
+        const data = await db.get(NOTES_KEY);
+        const notes: any[] = data ? JSON.parse(data) : [];
         const noteWithId = {
           ...newNote,
           id: newNote.id || Date.now().toString(),
@@ -55,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           updatedAt: new Date().toISOString(),
         };
         notes.push(noteWithId);
-        await db.set(NOTES_KEY, notes);
+        await db.set(NOTES_KEY, JSON.stringify(notes));
         return res.status(201).json({ note: noteWithId });
       }
 
@@ -63,7 +71,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { id, ...updates } = req.body;
 
         if (Array.isArray(req.body)) {
-          await db.set(NOTES_KEY, req.body);
+          await db.set(NOTES_KEY, JSON.stringify(req.body));
           return res.status(200).json({ notes: req.body });
         }
 
@@ -71,7 +79,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Note ID is required' });
         }
 
-        const notes: any[] = await db.get(NOTES_KEY) || [];
+        const data = await db.get(NOTES_KEY);
+        const notes: any[] = data ? JSON.parse(data) : [];
         const index = notes.findIndex(n => String(n.id) === String(id));
 
         if (index === -1) {
@@ -85,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           updatedAt: new Date().toISOString(),
         };
 
-        await db.set(NOTES_KEY, notes);
+        await db.set(NOTES_KEY, JSON.stringify(notes));
         return res.status(200).json({ note: notes[index] });
       }
 
@@ -95,14 +104,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Note ID is required' });
         }
 
-        const notes: any[] = await db.get(NOTES_KEY) || [];
+        const data = await db.get(NOTES_KEY);
+        const notes: any[] = data ? JSON.parse(data) : [];
         const filtered = notes.filter(n => String(n.id) !== String(noteId));
 
         if (filtered.length === notes.length) {
           return res.status(404).json({ error: 'Note not found' });
         }
 
-        await db.set(NOTES_KEY, filtered);
+        await db.set(NOTES_KEY, JSON.stringify(filtered));
         return res.status(200).json({ success: true });
       }
 
@@ -111,6 +121,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     console.error('Notes API error:', error);
-    return res.status(500).json({ error: 'Internal server error', details: String(error) });
+    return res.status(500).json({
+      error: 'Internal server error',
+      details: String(error),
+    });
   }
 }
