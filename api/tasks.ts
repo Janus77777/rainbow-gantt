@@ -1,4 +1,4 @@
-import { createClient } from 'redis';
+import { Redis } from '@upstash/redis';
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 const TASKS_KEY = 'gantt-v2:tasks';
@@ -10,21 +10,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-let redisClient: any = null;
-
-async function getRedis() {
-  if (!redisClient) {
-    redisClient = createClient({
-      url: process.env.REDIS_URL,
+// 延遲初始化 Redis
+let redis: Redis | null = null;
+function getRedis() {
+  if (!redis) {
+    redis = new Redis({
+      url: process.env.KV_REST_API_URL!,
+      token: process.env.KV_REST_API_TOKEN!,
     });
-
-    redisClient.on('error', (err: any) => console.error('Redis Client Error', err));
-
-    if (!redisClient.isOpen) {
-      await redisClient.connect();
-    }
   }
-  return redisClient;
+  return redis;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -42,12 +37,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   try {
-    const db = await getRedis();
+    const db = getRedis();
 
     switch (req.method) {
       case 'GET': {
-        const data = await db.get(TASKS_KEY);
-        const tasks = data ? JSON.parse(data) : [];
+        const tasks = await db.get(TASKS_KEY) || [];
         return res.status(200).json({ tasks });
       }
 
@@ -57,8 +51,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Task name is required' });
         }
 
-        const data = await db.get(TASKS_KEY);
-        const tasks: any[] = data ? JSON.parse(data) : [];
+        const tasks: any[] = await db.get(TASKS_KEY) || [];
         const taskWithId = {
           ...newTask,
           id: newTask.id || Date.now().toString(),
@@ -66,7 +59,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           updatedAt: new Date().toISOString(),
         };
         tasks.push(taskWithId);
-        await db.set(TASKS_KEY, JSON.stringify(tasks));
+        await db.set(TASKS_KEY, tasks);
         return res.status(201).json({ task: taskWithId });
       }
 
@@ -74,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { id, ...updates } = req.body;
 
         if (!id && Array.isArray(req.body)) {
-          await db.set(TASKS_KEY, JSON.stringify(req.body));
+          await db.set(TASKS_KEY, req.body);
           return res.status(200).json({ tasks: req.body });
         }
 
@@ -82,8 +75,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Task ID is required' });
         }
 
-        const data = await db.get(TASKS_KEY);
-        const tasks: any[] = data ? JSON.parse(data) : [];
+        const tasks: any[] = await db.get(TASKS_KEY) || [];
         const index = tasks.findIndex(t => String(t.id) === String(id));
 
         if (index === -1) {
@@ -97,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           updatedAt: new Date().toISOString(),
         };
 
-        await db.set(TASKS_KEY, JSON.stringify(tasks));
+        await db.set(TASKS_KEY, tasks);
         return res.status(200).json({ task: tasks[index] });
       }
 
@@ -107,15 +99,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           return res.status(400).json({ error: 'Task ID is required' });
         }
 
-        const data = await db.get(TASKS_KEY);
-        const tasks: any[] = data ? JSON.parse(data) : [];
+        const tasks: any[] = await db.get(TASKS_KEY) || [];
         const filtered = tasks.filter(t => String(t.id) !== String(taskId));
 
         if (filtered.length === tasks.length) {
           return res.status(404).json({ error: 'Task not found' });
         }
 
-        await db.set(TASKS_KEY, JSON.stringify(filtered));
+        await db.set(TASKS_KEY, filtered);
         return res.status(200).json({ success: true });
       }
 
@@ -128,7 +119,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       error: 'Internal server error',
       details: String(error),
       envCheck: {
-        hasRedisUrl: !!process.env.REDIS_URL,
+        hasUrl: !!process.env.KV_REST_API_URL,
+        hasToken: !!process.env.KV_REST_API_TOKEN,
       }
     });
   }
