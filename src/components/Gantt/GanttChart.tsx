@@ -40,21 +40,21 @@ const getPriorityOrder = (priority?: TaskPriority): number => {
   return PRIORITY_CONFIG[priority]?.order ?? 99;
 };
 
-// 類別顏色映射
+// 類別顏色映射 - 使用更深沉、專業的配色
 const getCategoryColors = (category: string) => {
   switch (category) {
     case 'AI賦能':
-      return { color: 'bg-cyan-500', shadow: 'shadow-cyan-500/30' };
+      return { color: 'bg-indigo-600', shadow: 'shadow-indigo-600/30' };
     case '產品行銷':
-      return { color: 'bg-fuchsia-500', shadow: 'shadow-fuchsia-500/30' };
+      return { color: 'bg-purple-600', shadow: 'shadow-purple-600/30' };
     case '流程優化':
-      return { color: 'bg-amber-500', shadow: 'shadow-amber-500/30' };
+      return { color: 'bg-orange-600', shadow: 'shadow-orange-600/30' };
     case '品牌行銷':
-      return { color: 'bg-emerald-500', shadow: 'shadow-emerald-500/30' };
+      return { color: 'bg-teal-600', shadow: 'shadow-teal-600/30' };
     case '客戶開發':
-      return { color: 'bg-red-500', shadow: 'shadow-red-500/30' };
+      return { color: 'bg-rose-600', shadow: 'shadow-rose-600/30' };
     default:
-      return { color: 'bg-gray-500', shadow: 'shadow-gray-500/30' };
+      return { color: 'bg-slate-600', shadow: 'shadow-slate-600/30' };
   }
 };
 
