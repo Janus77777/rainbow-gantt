@@ -5,6 +5,7 @@ import { GanttChart } from './components/Gantt/GanttChart';
 import { ContextPanel } from './components/ui/ContextPanel';
 import { useTasks } from './hooks/useTasks';
 import { useNotes, LearningNote } from './hooks/useNotes';
+import { usePeople } from './hooks/usePeople';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle, Settings } from 'lucide-react';
 import { Task, TaskCategory, Material } from './types';
@@ -1317,11 +1318,7 @@ const AppV2 = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // 人員管理狀態
-  const [people, setPeople] = useState<string[]>(() => {
-    const saved = localStorage.getItem('gantt-v2:people');
-    return saved ? JSON.parse(saved) : ['Ja', 'Jo'];
-  });
+  // 人員管理編輯狀態
   const [newPersonName, setNewPersonName] = useState('');
   const [editingPerson, setEditingPerson] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -1329,22 +1326,16 @@ const AppV2 = () => {
   // 連接真實後端數據
   const { tasks, isLoading, error, saveTasks, refetch } = useTasks();
   const { notes, isLoading: isLoadingNotes, addNote, updateNote, deleteNote } = useNotes();
+  const { people, addPerson, deletePerson, updatePerson } = usePeople();
 
   // 人員管理函數
-  const handleAddPerson = () => {
-    const trimmed = newPersonName.trim();
-    if (!trimmed || people.includes(trimmed)) return;
-
-    const updated = [...people, trimmed];
-    setPeople(updated);
-    localStorage.setItem('gantt-v2:people', JSON.stringify(updated));
+  const handleAddPerson = async () => {
+    await addPerson(newPersonName);
     setNewPersonName('');
   };
 
-  const handleDeletePerson = (name: string) => {
-    const updated = people.filter(p => p !== name);
-    setPeople(updated);
-    localStorage.setItem('gantt-v2:people', JSON.stringify(updated));
+  const handleDeletePerson = async (name: string) => {
+    await deletePerson(name);
   };
 
   const handleStartEdit = (person: string) => {
@@ -1355,22 +1346,18 @@ const AppV2 = () => {
   const handleSaveEdit = async (oldName: string) => {
     const trimmed = editingName.trim();
 
-    // 驗證：不能為空，不能與現有名稱重複（除了自己）
-    if (!trimmed || (trimmed !== oldName && people.includes(trimmed))) {
-      setEditingPerson(null);
-      return;
-    }
-
     // 如果名稱沒有變化，直接取消編輯
     if (trimmed === oldName) {
       setEditingPerson(null);
       return;
     }
 
-    // 更新 people 列表
-    const updatedPeople = people.map(p => p === oldName ? trimmed : p);
-    setPeople(updatedPeople);
-    localStorage.setItem('gantt-v2:people', JSON.stringify(updatedPeople));
+    // 更新人員名稱
+    const success = await updatePerson(oldName, trimmed);
+    if (!success) {
+      setEditingPerson(null);
+      return;
+    }
 
     // 更新所有相關任務的 owner
     const updatedTasks = tasks.map(task => {
