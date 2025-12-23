@@ -40,21 +40,21 @@ const getPriorityOrder = (priority?: TaskPriority): number => {
   return PRIORITY_CONFIG[priority]?.order ?? 99;
 };
 
-// 類別顏色映射 - 與統計面板保持一致的現代專業配色
+// 類別顏色映射 - 半透明淺色、通透感、光澤感
 const getCategoryColors = (category: string) => {
   switch (category) {
     case 'AI賦能':
-      return { color: 'bg-blue-600', shadow: 'shadow-blue-600/30' };
+      return { color: 'bg-sky-300/80', shadow: 'shadow-sky-300/40' };
     case '流程優化':
-      return { color: 'bg-orange-500', shadow: 'shadow-orange-500/30' };
+      return { color: 'bg-rose-300/80', shadow: 'shadow-rose-300/40' };
     case '產品行銷':
-      return { color: 'bg-violet-600', shadow: 'shadow-violet-600/30' };
+      return { color: 'bg-violet-300/80', shadow: 'shadow-violet-300/40' };
     case '品牌行銷':
-      return { color: 'bg-emerald-500', shadow: 'shadow-emerald-500/30' };
+      return { color: 'bg-emerald-300/80', shadow: 'shadow-emerald-300/40' };
     case '客戶開發':
-      return { color: 'bg-red-500', shadow: 'shadow-red-500/30' };
+      return { color: 'bg-amber-300/80', shadow: 'shadow-amber-300/40' };
     default:
-      return { color: 'bg-slate-500', shadow: 'shadow-slate-500/30' };
+      return { color: 'bg-slate-300/80', shadow: 'shadow-slate-300/40' };
   }
 };
 
@@ -288,7 +288,7 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                         e.stopPropagation();
                         onTaskClick(task);
                       }}
-                      className={`absolute h-8 ${task.color} ${task.shadow} tech-bar flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:brightness-110 hover:scale-[1.02] active:scale-95 transition-all z-50`}
+                      className={`absolute h-8 ${task.color} ${task.shadow} rounded-sm flex items-center justify-center text-gray-700 text-xs font-bold cursor-pointer hover:brightness-105 hover:scale-[1.02] active:scale-95 transition-all z-50 backdrop-blur-sm border border-white/30`}
                       style={{
                         left: `${barLeft}px`,
                         width: `${barWidth}px`

@@ -18,22 +18,22 @@ const Panel = ({ children, className = '' }: { children: React.ReactNode, classN
   </div>
 );
 
-// 類別顏色映射 - 現代專業配色
+// 類別顏色映射 - 半透明淺色、通透感
 const CATEGORY_COLORS: Record<string, { bg: string; bar: string; text: string }> = {
-  'AI賦能': { bg: 'bg-blue-100', bar: 'bg-blue-600', text: 'text-blue-900' },
-  '流程優化': { bg: 'bg-orange-100', bar: 'bg-orange-500', text: 'text-orange-900' },
-  '產品行銷': { bg: 'bg-violet-100', bar: 'bg-violet-600', text: 'text-violet-900' },
-  '品牌行銷': { bg: 'bg-emerald-100', bar: 'bg-emerald-500', text: 'text-emerald-900' },
-  '客戶開發': { bg: 'bg-red-100', bar: 'bg-red-500', text: 'text-red-900' },
-  '其他': { bg: 'bg-slate-100', bar: 'bg-slate-500', text: 'text-slate-900' },
+  'AI賦能': { bg: 'bg-sky-100', bar: 'bg-sky-300', text: 'text-sky-700' },
+  '流程優化': { bg: 'bg-rose-100', bar: 'bg-rose-300', text: 'text-rose-700' },
+  '產品行銷': { bg: 'bg-violet-100', bar: 'bg-violet-300', text: 'text-violet-700' },
+  '品牌行銷': { bg: 'bg-emerald-100', bar: 'bg-emerald-300', text: 'text-emerald-700' },
+  '客戶開發': { bg: 'bg-amber-100', bar: 'bg-amber-300', text: 'text-amber-700' },
+  '其他': { bg: 'bg-slate-100', bar: 'bg-slate-300', text: 'text-slate-700' },
 };
 
 const getColorForCategory = (category: string) => {
   return CATEGORY_COLORS[category] || CATEGORY_COLORS['其他'];
 };
 
-// 圓餅圖的顏色 - 與類別映射一致
-const PIE_COLORS = ['#2563eb', '#f97316', '#7c3aed', '#10b981', '#ef4444', '#64748b']; // Blue, Orange, Violet, Emerald, Red, Slate
+// 圓餅圖的顏色 - 淺色通透感
+const PIE_COLORS = ['#7dd3fc', '#fda4af', '#c4b5fd', '#6ee7b7', '#fcd34d', '#cbd5e1']; // Sky, Rose, Violet, Emerald, Amber, Slate (300 系列)
 
 interface DeliveryViewProps {
   tasks: Task[];
