@@ -15,6 +15,18 @@ const getInitials = (name?: string): string => {
   return name.substring(0, 2).toUpperCase();
 };
 
+// 負責人顏色配置（最多6人）
+// 預留顏色：bg-green-500, bg-purple-500, bg-orange-500, bg-pink-500
+const OWNER_COLORS: Record<string, string> = {
+  'Janus': 'bg-red-500',
+  'Joseph Chang': 'bg-blue-500',
+};
+
+const getOwnerColor = (owner?: string): string => {
+  if (!owner) return 'bg-black';
+  return OWNER_COLORS[owner] || 'bg-black';
+};
+
 // 優先級配置 - 用文字標籤
 const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bgColor: string; textColor: string; order: number }> = {
   'urgent': { label: 'URGENT', color: 'text-red-600', bgColor: 'bg-red-200', textColor: 'text-red-800', order: 0 },
@@ -223,7 +235,7 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                   )}
 
                   {/* 負責人頭像 */}
-                  <div className={`w-8 h-8 bg-black text-white text-[10px] font-bold flex items-center justify-center border border-gray-900 mr-2 shrink-0`}>
+                  <div className={`w-8 h-8 ${getOwnerColor(task.owner)} text-white text-[10px] font-bold flex items-center justify-center border border-gray-900 mr-2 shrink-0`}>
                     {getInitials(task.owner)}
                   </div>
 
