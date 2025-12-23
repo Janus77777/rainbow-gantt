@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Link as LinkIcon, User, Calendar, Tag, PlayCircle, Save, Trash2, Plus, Upload, FileText, Image as ImageIcon, ChevronDown, Flame, ArrowUp, Minus, ArrowDown, Flag, Check, ExternalLink, MessageCircle } from 'lucide-react';
-import { Task, TaskStatus, TaskCategory, TaskPriority, Material, TaskComment } from '../../types';
+import { X, Link as LinkIcon, User, Calendar, Tag, PlayCircle, Save, Trash2, Plus, Upload, FileText, Image as ImageIcon, ChevronDown, Flame, ArrowUp, Minus, ArrowDown, Flag, Check, ExternalLink, MessageCircle, History } from 'lucide-react';
+import { Task, TaskStatus, TaskCategory, TaskPriority, Material, TaskComment, TaskChangelogEntry } from '../../types';
 
 interface ContextPanelProps {
   isOpen: boolean;
@@ -264,6 +264,11 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
   const [commentAuthor, setCommentAuthor] = useState('');
   const [commentContent, setCommentContent] = useState('');
 
+  // Changelog 狀態
+  const [changelogVersion, setChangelogVersion] = useState('');
+  const [changelogContent, setChangelogContent] = useState('');
+  const [changelogAuthor, setChangelogAuthor] = useState('');
+
   useEffect(() => {
     if (task) {
       setEditedTask({ ...task });
@@ -329,6 +334,39 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
     setEditedTask(prev => ({
       ...prev,
       comments: (prev.comments || []).filter(c => c.id !== commentId)
+    }));
+  };
+
+  // Changelog 處理函數
+  const resetChangelogForm = () => {
+    setChangelogVersion('');
+    setChangelogContent('');
+    setChangelogAuthor('');
+  };
+
+  const handleAddChangelog = () => {
+    if (!changelogVersion.trim() || !changelogContent.trim()) return;
+
+    const newEntry: TaskChangelogEntry = {
+      id: Date.now().toString(),
+      version: changelogVersion.trim(),
+      content: changelogContent.trim(),
+      author: changelogAuthor.trim() || '匿名',
+      createdAt: new Date().toISOString(),
+    };
+
+    setEditedTask(prev => ({
+      ...prev,
+      changelog: [newEntry, ...(prev.changelog || [])]
+    }));
+
+    resetChangelogForm();
+  };
+
+  const handleDeleteChangelog = (entryId: string) => {
+    setEditedTask(prev => ({
+      ...prev,
+      changelog: (prev.changelog || []).filter(c => c.id !== entryId)
     }));
   };
 
@@ -684,6 +722,77 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
               >
                 <Plus className="w-4 h-4" />
                 新增備註
+              </button>
+            </div>
+          </div>
+
+          {/* 版本記錄 Changelog */}
+          <div>
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 block">
+              <History className="w-3 h-3 inline mr-1" />版本記錄
+            </label>
+
+            {/* 現有版本記錄列表 */}
+            {(editedTask.changelog || []).length > 0 && (
+              <div className="space-y-2 mb-3">
+                {(editedTask.changelog || []).map(entry => (
+                  <div key={entry.id} className="group p-3 bg-violet-50/50 rounded-xl border border-violet-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 bg-violet-200 text-violet-700 rounded-full text-xs font-bold">
+                        v{entry.version}
+                      </span>
+                      <span className="px-2 py-0.5 bg-violet-100 text-violet-600 rounded-full text-xs">
+                        {entry.author}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(entry.createdAt).toLocaleDateString('zh-TW')}
+                      </span>
+                      <button
+                        onClick={() => handleDeleteChangelog(entry.id)}
+                        className="ml-auto p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                        title="刪除此記錄"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <p className="text-sm text-slate-600 whitespace-pre-wrap">{entry.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 新增版本記錄表單 */}
+            <div className="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-200 space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="版本號 (如 1.0.0)"
+                  value={changelogVersion}
+                  onChange={(e) => setChangelogVersion(e.target.value)}
+                  className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-violet-300 outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="作者"
+                  value={changelogAuthor}
+                  onChange={(e) => setChangelogAuthor(e.target.value)}
+                  className="w-24 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-violet-300 outline-none"
+                />
+              </div>
+              <textarea
+                placeholder="更新內容..."
+                value={changelogContent}
+                onChange={(e) => setChangelogContent(e.target.value)}
+                rows={2}
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-violet-300 outline-none resize-none"
+              />
+              <button
+                onClick={handleAddChangelog}
+                disabled={!changelogVersion.trim() || !changelogContent.trim()}
+                className="w-full py-2 bg-gradient-to-r from-violet-400 to-purple-400 text-white rounded-lg text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                新增版本記錄
               </button>
             </div>
           </div>

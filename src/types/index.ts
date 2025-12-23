@@ -26,6 +26,14 @@ export interface TaskComment {
   createdAt: string;
 }
 
+export interface TaskChangelogEntry {
+  id: string;
+  version: string;
+  content: string;
+  author: string;
+  createdAt: string;
+}
+
 export interface Task {
   id: string | number;
   name: string;
@@ -44,6 +52,7 @@ export interface Task {
   priority?: TaskPriority;  // 優先級：urgent > high > medium > low
   comments?: TaskComment[]; // 備註/意見
   collaborationType?: CollaborationType;  // 合作類型：solo | team
+  changelog?: TaskChangelogEntry[];  // 版本記錄
 }
 
 export interface WorkspaceSettings {
