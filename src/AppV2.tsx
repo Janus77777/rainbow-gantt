@@ -6,8 +6,9 @@ import { ContextPanel } from './components/ui/ContextPanel';
 import { useTasks } from './hooks/useTasks';
 import { useNotes, LearningNote } from './hooks/useNotes';
 import { usePeople } from './hooks/usePeople';
+import { useChangelog, ChangelogEntry } from './hooks/useChangelog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle, Settings } from 'lucide-react';
+import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle, Settings, FileCode } from 'lucide-react';
 import { Task, TaskCategory, Material } from './types';
 
 // Retro Panel Component
@@ -47,8 +48,9 @@ const filterTasksByOwner = (tasks: Task[], filter: string) => {
 };
 
 const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProps) => {
-  const [viewMode, setViewMode] = useState<'gantt' | 'list'>('gantt');
+  const [viewMode, setViewMode] = useState<'gantt' | 'list' | 'changelog'>('gantt');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  const { changelog, isLoading: isLoadingChangelog } = useChangelog();
 
   // 根據 owner 篩選任務
   const filteredTasks = useMemo(() => filterTasksByOwner(tasks, ownerFilter), [tasks, ownerFilter]);
@@ -122,6 +124,13 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
               >
                 <List className="w-4 h-4"/>
                 LIST
+              </button>
+              <button
+                onClick={() => setViewMode('changelog')}
+                className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'changelog' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
+              >
+                <FileCode className="w-4 h-4"/>
+                CHANGELOG
               </button>
            </div>
 
@@ -294,6 +303,103 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
                   className="absolute inset-0 retro-panel p-6 flex items-center justify-center pointer-events-auto"
                 >
                   <div className="text-gray-700 font-medium">LIST_VIEW_INIT</div>
+                </motion.div>
+              )}
+              {viewMode === 'changelog' && (
+                <motion.div
+                  key="changelog"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="absolute inset-0 overflow-y-auto custom-scrollbar pointer-events-auto"
+                >
+                  {isLoadingChangelog ? (
+                    <div className="flex items-center justify-center py-20">
+                      <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+                      <span className="ml-3 text-gray-700 font-medium">LOADING_CHANGELOG...</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 pb-8">
+                      {changelog.map((entry) => {
+                        const typeConfig = {
+                          feature: { bg: 'bg-cyan-500', label: '新功能', icon: '✨' },
+                          fix: { bg: 'bg-emerald-500', label: '修復', icon: '🔧' },
+                          improvement: { bg: 'bg-amber-500', label: '改進', icon: '⚡' },
+                          breaking: { bg: 'bg-red-500', label: '重大變更', icon: '⚠️' },
+                        };
+                        const config = typeConfig[entry.type];
+
+                        return (
+                          <motion.div
+                            key={entry.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="retro-panel overflow-hidden"
+                          >
+                            {/* Header Bar */}
+                            <div className={`h-2 ${config.bg}`} />
+
+                            <div className="p-5 space-y-3">
+                              {/* Version & Type */}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-bold px-2.5 py-1 uppercase bg-black text-white border border-gray-900">
+                                  v{entry.version}
+                                </span>
+                                <span className={`text-xs font-bold px-2.5 py-1 uppercase ${config.bg} text-white border border-gray-900`}>
+                                  {config.icon} {config.label}
+                                </span>
+                                <span className="text-xs text-gray-600 ml-auto">
+                                  {new Date(entry.date).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                                </span>
+                              </div>
+
+                              {/* Title */}
+                              <h3 className="text-lg font-bold text-gray-900 uppercase">
+                                {entry.title}
+                              </h3>
+
+                              {/* Description */}
+                              {entry.description && (
+                                <p className="text-sm text-gray-700">
+                                  {entry.description}
+                                </p>
+                              )}
+
+                              {/* Items List */}
+                              {entry.items && entry.items.length > 0 && (
+                                <ul className="space-y-2 pt-2 border-t border-gray-300">
+                                  {entry.items.map((item, idx) => (
+                                    <li key={idx} className="flex items-start gap-2 text-sm text-gray-800">
+                                      <span className="text-cyan-500 font-bold shrink-0">▸</span>
+                                      <span>{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+
+                              {/* Author */}
+                              {entry.author && (
+                                <div className="flex items-center gap-2 pt-2 border-t border-gray-300">
+                                  <span className="text-xs text-gray-600 uppercase">作者:</span>
+                                  <span className="text-xs font-medium text-gray-800">{entry.author}</span>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+
+                      {changelog.length === 0 && (
+                        <div className="flex flex-col items-center justify-center py-20 retro-panel">
+                          <div className="w-20 h-20 bg-gray-200 border-2 border-gray-900 flex items-center justify-center mb-4">
+                            <FileCode className="w-10 h-10 text-gray-700" />
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-900 mb-2 uppercase">NO_CHANGELOG</h3>
+                          <p className="text-gray-600 text-sm">尚無更新記錄</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
