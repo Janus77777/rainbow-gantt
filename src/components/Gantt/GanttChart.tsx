@@ -15,24 +15,28 @@ const getInitials = (name?: string): string => {
   return name.substring(0, 2).toUpperCase();
 };
 
-// 負責人顏色配置（最多6人）
-// 預留顏色：bg-green-500, bg-purple-500, bg-orange-500, bg-pink-500
-const OWNER_COLORS: Record<string, string> = {
-  'Janus': 'bg-red-500',
-  'Joseph Chang': 'bg-blue-500',
+// 負責人顏色配置（最多6人）- 半透明淺色風格
+const OWNER_COLORS: Record<string, { bg: string; text: string }> = {
+  'Janus': { bg: 'bg-rose-300/90', text: 'text-rose-800' },
+  'Joseph Chang': { bg: 'bg-sky-300/90', text: 'text-sky-800' },
+  // 預留顏色
+  // 'Name3': { bg: 'bg-violet-300/90', text: 'text-violet-800' },
+  // 'Name4': { bg: 'bg-emerald-300/90', text: 'text-emerald-800' },
+  // 'Name5': { bg: 'bg-amber-300/90', text: 'text-amber-800' },
+  // 'Name6': { bg: 'bg-pink-300/90', text: 'text-pink-800' },
 };
 
-const getOwnerColor = (owner?: string): string => {
-  if (!owner) return 'bg-black';
-  return OWNER_COLORS[owner] || 'bg-black';
+const getOwnerColor = (owner?: string): { bg: string; text: string } => {
+  if (!owner) return { bg: 'bg-slate-300/90', text: 'text-slate-800' };
+  return OWNER_COLORS[owner] || { bg: 'bg-slate-300/90', text: 'text-slate-800' };
 };
 
-// 優先級配置 - 用文字標籤
+// 優先級配置 - 半透明淺色風格
 const PRIORITY_CONFIG: Record<TaskPriority, { label: string; color: string; bgColor: string; textColor: string; order: number }> = {
-  'urgent': { label: 'URGENT', color: 'text-red-600', bgColor: 'bg-red-200', textColor: 'text-red-800', order: 0 },
-  'high': { label: 'HIGH', color: 'text-orange-600', bgColor: 'bg-amber-200', textColor: 'text-amber-800', order: 1 },
-  'medium': { label: 'MEDIUM', color: 'text-yellow-600', bgColor: 'bg-yellow-200', textColor: 'text-yellow-800', order: 2 },
-  'low': { label: 'LOW', color: 'text-gray-500', bgColor: 'bg-gray-200', textColor: 'text-gray-800', order: 3 },
+  'urgent': { label: 'URGENT', color: 'text-red-600', bgColor: 'bg-red-200/80', textColor: 'text-red-700', order: 0 },
+  'high': { label: 'HIGH', color: 'text-amber-600', bgColor: 'bg-amber-200/80', textColor: 'text-amber-700', order: 1 },
+  'medium': { label: 'MEDIUM', color: 'text-yellow-600', bgColor: 'bg-yellow-200/80', textColor: 'text-yellow-700', order: 2 },
+  'low': { label: 'LOW', color: 'text-slate-500', bgColor: 'bg-slate-200/80', textColor: 'text-slate-600', order: 3 },
 };
 
 const getPriorityOrder = (priority?: TaskPriority): number => {
@@ -223,7 +227,7 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                   onClick={() => onTaskClick(task)}
                 >
                   {/* 優先級文字標籤 */}
-                  <div className={`px-2 py-1 border border-gray-900 text-[10px] font-bold mr-2 shrink-0 ${priorityConfig ? `${priorityConfig.bgColor} ${priorityConfig.textColor}` : 'bg-gray-200 text-gray-800'}`}>
+                  <div className={`px-2 py-1 border border-white/50 text-[10px] font-bold mr-2 shrink-0 ${priorityConfig ? `${priorityConfig.bgColor} ${priorityConfig.textColor}` : 'bg-slate-200/80 text-slate-600'}`}>
                     {priorityConfig?.label || 'NONE'}
                   </div>
 
@@ -235,7 +239,7 @@ export const GanttChart = ({ tasks, onTaskClick }: { tasks: Task[], onTaskClick:
                   )}
 
                   {/* 負責人頭像 */}
-                  <div className={`w-8 h-8 ${getOwnerColor(task.owner)} text-white text-[10px] font-bold flex items-center justify-center border border-gray-900 mr-2 shrink-0`}>
+                  <div className={`w-8 h-8 ${getOwnerColor(task.owner).bg} ${getOwnerColor(task.owner).text} text-[10px] font-bold flex items-center justify-center border border-white/50 mr-2 shrink-0`}>
                     {getInitials(task.owner)}
                   </div>
 
