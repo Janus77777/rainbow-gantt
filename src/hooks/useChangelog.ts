@@ -83,6 +83,48 @@ export const useChangelog = () => {
     }
   }, []);
 
+  // 新增更新日誌條目
+  const addEntry = useCallback(async (entry: Omit<ChangelogEntry, 'id'>) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/changelog`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setChangelog(data.changelog || []);
+      return true;
+    } catch (err) {
+      console.error('Failed to add changelog entry:', err);
+      return false;
+    }
+  }, []);
+
+  // 刪除更新日誌條目
+  const deleteEntry = useCallback(async (id: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/changelog?id=${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setChangelog(data.changelog || []);
+      return true;
+    } catch (err) {
+      console.error('Failed to delete changelog entry:', err);
+      return false;
+    }
+  }, []);
+
   // 初始加載
   useEffect(() => {
     fetchChangelog();
@@ -93,5 +135,7 @@ export const useChangelog = () => {
     isLoading,
     error,
     refetch: fetchChangelog,
+    addEntry,
+    deleteEntry,
   };
 };

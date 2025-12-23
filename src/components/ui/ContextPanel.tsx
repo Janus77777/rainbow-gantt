@@ -639,26 +639,23 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
             {(editedTask.comments || []).length > 0 && (
               <div className="space-y-2 mb-3">
                 {(editedTask.comments || []).map(comment => (
-                  <div key={comment.id} className="p-3 bg-amber-50/50 rounded-xl border border-amber-100">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
-                            {comment.author}
-                          </span>
-                          <span className="text-[10px] text-slate-400">
-                            {new Date(comment.createdAt).toLocaleDateString('zh-TW')}
-                          </span>
-                        </div>
-                        <p className="text-sm text-slate-600 whitespace-pre-wrap">{comment.content}</p>
-                      </div>
+                  <div key={comment.id} className="group p-3 bg-amber-50/50 rounded-xl border border-amber-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                        {comment.author}
+                      </span>
+                      <span className="text-[10px] text-slate-400">
+                        {new Date(comment.createdAt).toLocaleDateString('zh-TW')}
+                      </span>
                       <button
                         onClick={() => handleDeleteComment(comment.id)}
-                        className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0"
+                        className="ml-auto p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 hover:opacity-100 group-hover:opacity-100"
+                        title="刪除此備註"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
+                    <p className="text-sm text-slate-600 whitespace-pre-wrap">{comment.content}</p>
                   </div>
                 ))}
               </div>

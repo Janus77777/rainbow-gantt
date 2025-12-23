@@ -50,7 +50,44 @@ const filterTasksByOwner = (tasks: Task[], filter: string) => {
 const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProps) => {
   const [viewMode, setViewMode] = useState<'gantt' | 'list' | 'changelog'>('gantt');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
-  const { changelog, isLoading: isLoadingChangelog } = useChangelog();
+  const { changelog, isLoading: isLoadingChangelog, addEntry, deleteEntry } = useChangelog();
+
+  // Changelog 新增表單狀態
+  const [showChangelogForm, setShowChangelogForm] = useState(false);
+  const [newChangelogEntry, setNewChangelogEntry] = useState({
+    version: '',
+    type: 'feature' as 'feature' | 'fix' | 'improvement' | 'breaking',
+    title: '',
+    description: '',
+    items: '',
+    author: '',
+  });
+
+  const handleAddChangelog = async () => {
+    if (!newChangelogEntry.version || !newChangelogEntry.title) return;
+
+    const entry = {
+      version: newChangelogEntry.version,
+      type: newChangelogEntry.type,
+      title: newChangelogEntry.title,
+      description: newChangelogEntry.description || undefined,
+      items: newChangelogEntry.items ? newChangelogEntry.items.split('\n').filter(i => i.trim()) : undefined,
+      author: newChangelogEntry.author || undefined,
+      date: new Date().toISOString().split('T')[0],
+    };
+
+    const success = await addEntry(entry);
+    if (success) {
+      setNewChangelogEntry({ version: '', type: 'feature', title: '', description: '', items: '', author: '' });
+      setShowChangelogForm(false);
+    }
+  };
+
+  const handleDeleteChangelog = async (id: string) => {
+    if (confirm('確定要刪除此更新記錄嗎？')) {
+      await deleteEntry(id);
+    }
+  };
 
   // 根據 owner 篩選任務
   const filteredTasks = useMemo(() => filterTasksByOwner(tasks, ownerFilter), [tasks, ownerFilter]);
@@ -320,12 +357,112 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
                     </div>
                   ) : (
                     <div className="space-y-4 pb-8">
+                      {/* 新增按鈕 */}
+                      <button
+                        onClick={() => setShowChangelogForm(!showChangelogForm)}
+                        className="retro-btn w-full p-3 bg-black text-white hover:bg-gray-800 flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        <span className="font-bold uppercase">新增版本記錄</span>
+                      </button>
+
+                      {/* 新增表單 */}
+                      {showChangelogForm && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="retro-panel p-4 space-y-3"
+                        >
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-xs font-bold text-gray-700 uppercase mb-1 block">版本號 *</label>
+                              <input
+                                type="text"
+                                placeholder="例: 2.2.0"
+                                value={newChangelogEntry.version}
+                                onChange={(e) => setNewChangelogEntry(prev => ({ ...prev, version: e.target.value }))}
+                                className="w-full px-3 py-2 border-2 border-gray-900 text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs font-bold text-gray-700 uppercase mb-1 block">類型 *</label>
+                              <select
+                                value={newChangelogEntry.type}
+                                onChange={(e) => setNewChangelogEntry(prev => ({ ...prev, type: e.target.value as any }))}
+                                className="w-full px-3 py-2 border-2 border-gray-900 text-sm"
+                              >
+                                <option value="feature">✨ 新功能</option>
+                                <option value="fix">🔧 修復</option>
+                                <option value="improvement">⚡ 改進</option>
+                                <option value="breaking">⚠️ 重大變更</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-700 uppercase mb-1 block">標題 *</label>
+                            <input
+                              type="text"
+                              placeholder="更新標題"
+                              value={newChangelogEntry.title}
+                              onChange={(e) => setNewChangelogEntry(prev => ({ ...prev, title: e.target.value }))}
+                              className="w-full px-3 py-2 border-2 border-gray-900 text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-700 uppercase mb-1 block">描述 (選填)</label>
+                            <input
+                              type="text"
+                              placeholder="簡短描述"
+                              value={newChangelogEntry.description}
+                              onChange={(e) => setNewChangelogEntry(prev => ({ ...prev, description: e.target.value }))}
+                              className="w-full px-3 py-2 border-2 border-gray-900 text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-700 uppercase mb-1 block">更新項目 (每行一項)</label>
+                            <textarea
+                              placeholder="新增了 XX 功能&#10;修復了 YY 問題&#10;改進了 ZZ 性能"
+                              value={newChangelogEntry.items}
+                              onChange={(e) => setNewChangelogEntry(prev => ({ ...prev, items: e.target.value }))}
+                              className="w-full px-3 py-2 border-2 border-gray-900 text-sm h-24 resize-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-bold text-gray-700 uppercase mb-1 block">作者 (選填)</label>
+                            <input
+                              type="text"
+                              placeholder="你的名字"
+                              value={newChangelogEntry.author}
+                              onChange={(e) => setNewChangelogEntry(prev => ({ ...prev, author: e.target.value }))}
+                              className="w-full px-3 py-2 border-2 border-gray-900 text-sm"
+                            />
+                          </div>
+                          <div className="flex gap-2 pt-2">
+                            <button
+                              onClick={handleAddChangelog}
+                              disabled={!newChangelogEntry.version || !newChangelogEntry.title}
+                              className="retro-btn flex-1 p-2 bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                              <Save className="w-4 h-4" />
+                              <span className="font-bold uppercase">儲存</span>
+                            </button>
+                            <button
+                              onClick={() => setShowChangelogForm(false)}
+                              className="retro-btn p-2 bg-gray-200 text-gray-700 hover:bg-gray-300"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+
                       {changelog.map((entry) => {
                         const typeConfig = {
-                          feature: { bg: 'bg-cyan-500', label: '新功能', icon: '✨' },
-                          fix: { bg: 'bg-emerald-500', label: '修復', icon: '🔧' },
-                          improvement: { bg: 'bg-amber-500', label: '改進', icon: '⚡' },
-                          breaking: { bg: 'bg-red-500', label: '重大變更', icon: '⚠️' },
+                          feature: { bg: 'bg-sky-300/80', label: '新功能', icon: '✨' },
+                          fix: { bg: 'bg-emerald-300/80', label: '修復', icon: '🔧' },
+                          improvement: { bg: 'bg-amber-300/80', label: '改進', icon: '⚡' },
+                          breaking: { bg: 'bg-rose-300/80', label: '重大變更', icon: '⚠️' },
                         };
                         const config = typeConfig[entry.type];
 
@@ -334,7 +471,7 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
                             key={entry.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="retro-panel overflow-hidden"
+                            className="group retro-panel overflow-hidden"
                           >
                             {/* Header Bar */}
                             <div className={`h-2 ${config.bg}`} />
@@ -345,12 +482,19 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
                                 <span className="text-xs font-bold px-2.5 py-1 uppercase bg-black text-white border border-gray-900">
                                   v{entry.version}
                                 </span>
-                                <span className={`text-xs font-bold px-2.5 py-1 uppercase ${config.bg} text-white border border-gray-900`}>
+                                <span className={`text-xs font-bold px-2.5 py-1 uppercase ${config.bg} text-gray-700 border border-white/50`}>
                                   {config.icon} {config.label}
                                 </span>
                                 <span className="text-xs text-gray-600 ml-auto">
                                   {new Date(entry.date).toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })}
                                 </span>
+                                <button
+                                  onClick={() => handleDeleteChangelog(entry.id)}
+                                  className="p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+                                  title="刪除此記錄"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
                               </div>
 
                               {/* Title */}
@@ -370,7 +514,7 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
                                 <ul className="space-y-2 pt-2 border-t border-gray-300">
                                   {entry.items.map((item, idx) => (
                                     <li key={idx} className="flex items-start gap-2 text-sm text-gray-800">
-                                      <span className="text-cyan-500 font-bold shrink-0">▸</span>
+                                      <span className="text-sky-500 font-bold shrink-0">▸</span>
                                       <span>{item}</span>
                                     </li>
                                   ))}
