@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { getApiBaseUrl } from '../api/client';
 
 export interface ChangelogEntry {
   id: string;
@@ -11,8 +12,6 @@ export interface ChangelogEntry {
   author?: string;
 }
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
 export const useChangelog = () => {
   const [changelog, setChangelog] = useState<ChangelogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +23,7 @@ export const useChangelog = () => {
       setIsLoading(true);
       setError(null);
 
-      const response = await fetch(`${API_BASE_URL}/api/changelog`);
+      const response = await fetch(`${getApiBaseUrl()}/api/changelog`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -86,7 +85,7 @@ export const useChangelog = () => {
   // 新增更新日誌條目
   const addEntry = useCallback(async (entry: Omit<ChangelogEntry, 'id'>) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/changelog`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/changelog`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(entry),
@@ -108,7 +107,7 @@ export const useChangelog = () => {
   // 刪除更新日誌條目
   const deleteEntry = useCallback(async (id: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/changelog?id=${id}`, {
+      const response = await fetch(`${getApiBaseUrl()}/api/changelog?id=${id}`, {
         method: 'DELETE',
       });
 
