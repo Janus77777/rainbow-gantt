@@ -522,20 +522,6 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
               />
             </div>
             <div className="flex items-center gap-1">
-              {task?.id && onDelete && (
-                <button
-                  onClick={() => {
-                    if (window.confirm('確定要刪除此任務嗎？')) {
-                      onDelete(task.id);
-                      onClose();
-                    }
-                  }}
-                  className="p-2 hover:bg-red-100 rounded-full text-slate-400 hover:text-red-500 shrink-0 transition-colors"
-                  title="刪除任務"
-                >
-                  <Trash2 className="w-5 h-5" />
-                </button>
-              )}
               <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 shrink-0">
                 <X className="w-5 h-5" />
               </button>
@@ -983,7 +969,7 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
         <div className="p-4 border-t-2 border-gray-900 bg-gray-100 flex gap-3">
           <button
             onClick={handleSave}
-            className="retro-btn flex-1 py-2.5 bg-blue-500 text-white hover:bg-blue-600"
+            className="retro-btn flex-1 py-2.5 bg-sky-300/90 text-sky-800 hover:bg-sky-400/90"
           >
             <Save className="w-4 h-4" />
             SAVE
@@ -994,6 +980,20 @@ export const ContextPanel: React.FC<ContextPanelProps> = ({ isOpen, onClose, tas
           >
             CANCEL
           </button>
+          {task?.id && onDelete && (
+            <button
+              onClick={() => {
+                if (window.confirm('確定要刪除此任務嗎？此操作無法復原。')) {
+                  onDelete(task.id);
+                  onClose();
+                }
+              }}
+              className="retro-btn px-4 py-2.5 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white"
+              title="刪除任務"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </motion.div>
 
