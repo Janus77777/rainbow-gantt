@@ -248,11 +248,11 @@ export const CalendarView = () => {
 
   return (
     <div className="retro-panel h-full flex flex-col overflow-hidden p-4">
-      {/* 載入和同步狀態指示器 */}
-      {(isLoading || isSyncing) && (
-        <div className="absolute top-4 right-4 z-10 retro-panel bg-blue-500 text-white px-3 py-1.5 text-xs font-bold uppercase flex items-center gap-2">
+      {/* 同步狀態指示器 - 只在同步時顯示，載入時不顯示避免閃爍 */}
+      {isSyncing && (
+        <div className="absolute bottom-4 right-4 z-10 retro-panel bg-blue-500 text-white px-3 py-1.5 text-xs font-bold uppercase flex items-center gap-2">
           <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          {isLoading ? 'LOADING_DATA...' : 'SYNCING...'}
+          SYNCING...
         </div>
       )}
 
