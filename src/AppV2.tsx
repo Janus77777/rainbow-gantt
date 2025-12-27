@@ -39,6 +39,7 @@ interface DeliveryViewProps {
   tasks: Task[];
   isLoading: boolean;
   onOpenTask: (task: Task | null) => void;
+  onOpenSettings: () => void;
   people: string[];
 }
 
@@ -47,7 +48,7 @@ const filterTasksByOwner = (tasks: Task[], filter: string) => {
   return tasks.filter(t => (t.owner || '').toLowerCase() === filter.toLowerCase());
 };
 
-const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProps) => {
+const DeliveryView = ({ tasks, isLoading, onOpenTask, onOpenSettings, people }: DeliveryViewProps) => {
   const [viewMode, setViewMode] = useState<'gantt' | 'list' | 'changelog'>('gantt');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
   const { changelog, isLoading: isLoadingChangelog, addEntry, deleteEntry } = useChangelog();
@@ -145,9 +146,9 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">SYS_GANTT_V2 // ACTIVE_PROJECTS</h1>
           <p className="text-gray-600 text-sm mt-1">OPERATIONAL_STATUS: ALL_SYSTEMS_GO</p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 pr-16">
+        <div className="flex flex-wrap items-center gap-3">
            {/* View Switcher - Retro Style */}
-           <div className="retro-panel p-1 flex gap-1 pointer-events-auto mr-2">
+           <div className="retro-panel p-1 flex gap-1 pointer-events-auto">
               <button
                 onClick={() => setViewMode('gantt')}
                 className={`retro-btn p-2.5 text-sm flex items-center gap-2 ${viewMode === 'gantt' ? 'bg-black text-white' : 'text-gray-700 hover:bg-gray-100'}`}
@@ -180,6 +181,12 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, people }: DeliveryViewProp
            >
              <Plus className="w-5 h-5" />
              <span>NEW_TASK</span>
+           </button>
+           <button
+             onClick={onOpenSettings}
+             className="retro-btn p-3 bg-white text-gray-800 hover:bg-gray-100"
+           >
+             <Settings className="w-5 h-5" />
            </button>
         </div>
       </div>
@@ -565,10 +572,11 @@ interface PocViewProps {
   tasks: Task[];
   isLoading: boolean;
   onOpenTask: (task: Task | null) => void;
+  onOpenSettings: () => void;
   onDeleteTask: (taskId: string | number) => void;
 }
 
-const PocView = ({ tasks, isLoading, onOpenTask, onDeleteTask }: PocViewProps) => {
+const PocView = ({ tasks, isLoading, onOpenTask, onOpenSettings, onDeleteTask }: PocViewProps) => {
   // 只顯示 POC 任務（isPoc = true）
   const pocTasks = useMemo(() => tasks.filter(t => t.isPoc), [tasks]);
 
@@ -598,18 +606,26 @@ const PocView = ({ tasks, isLoading, onOpenTask, onDeleteTask }: PocViewProps) =
       className="space-y-6 pb-32 pointer-events-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-2 pr-16">
+      <div className="flex items-center justify-between px-2">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">DIAGNOSTIC // POC_PROTOCOL</h1>
           <p className="text-gray-600 text-sm mt-1">STATUS: EVALUATION_IN_PROGRESS</p>
         </div>
-        <button
-          onClick={handleNewPoc}
-          className="retro-btn bg-fuchsia-500 text-white px-6 py-3 hover:bg-fuchsia-600"
-        >
-          <Plus className="w-5 h-5" />
-          <span>NEW_PROTOCOL</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleNewPoc}
+            className="retro-btn bg-fuchsia-500 text-white px-6 py-3 hover:bg-fuchsia-600"
+          >
+            <Plus className="w-5 h-5" />
+            <span>NEW_PROTOCOL</span>
+          </button>
+          <button
+            onClick={onOpenSettings}
+            className="retro-btn p-3 bg-white text-gray-800 hover:bg-gray-100"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* POC Cards Grid */}
@@ -744,11 +760,12 @@ interface CompletedProjectsViewProps {
   tasks: Task[];
   isLoading: boolean;
   onOpenTask: (task: Task | null) => void;
+  onOpenSettings: () => void;
   onDeleteTask: (taskId: string | number) => void;
   people: string[];
 }
 
-const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onDeleteTask, people }: CompletedProjectsViewProps) => {
+const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onOpenSettings, onDeleteTask, people }: CompletedProjectsViewProps) => {
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
 
   // 所有已完成的非 POC 任務
@@ -803,18 +820,26 @@ const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onDeleteTask, peo
       className="space-y-6 pb-32 pointer-events-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-2 pr-16">
+      <div className="flex items-center justify-between px-2">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">MISSION_LOG // COMPLETED_PROTOCOLS</h1>
           <p className="text-gray-600 text-sm mt-1">TOTAL_COMPLETED: {completedTasks.length}</p>
         </div>
-        <button
-          onClick={handleNewCompleted}
-          className="retro-btn bg-emerald-500 text-white px-6 py-3 hover:bg-emerald-600"
-        >
-          <Plus className="w-5 h-5" />
-          <span>ADD_ENTRY</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleNewCompleted}
+            className="retro-btn bg-emerald-500 text-white px-6 py-3 hover:bg-emerald-600"
+          >
+            <Plus className="w-5 h-5" />
+            <span>ADD_ENTRY</span>
+          </button>
+          <button
+            onClick={onOpenSettings}
+            className="retro-btn p-3 bg-white text-gray-800 hover:bg-gray-100"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Owner Filter Tabs */}
@@ -932,12 +957,13 @@ interface LearningViewProps {
   tasks: Task[];
   notes: LearningNote[];
   isLoadingNotes: boolean;
+  onOpenSettings: () => void;
   onAddNote: (note: Omit<LearningNote, 'id' | 'createdAt' | 'updatedAt'>) => Promise<LearningNote>;
   onUpdateNote: (note: LearningNote) => Promise<LearningNote>;
   onDeleteNote: (noteId: string) => Promise<void>;
 }
 
-const LearningView = ({ tasks, notes, isLoadingNotes, onAddNote, onUpdateNote, onDeleteNote }: LearningViewProps) => {
+const LearningView = ({ tasks, notes, isLoadingNotes, onOpenSettings, onAddNote, onUpdateNote, onDeleteNote }: LearningViewProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingNote, setEditingNote] = useState<Partial<LearningNote> | null>(null);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
@@ -1055,18 +1081,26 @@ const LearningView = ({ tasks, notes, isLoadingNotes, onAddNote, onUpdateNote, o
       className="space-y-6 pb-32 pointer-events-auto"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-2 pr-16">
+      <div className="flex items-center justify-between px-2">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tighter uppercase">KNOWLEDGE_BASE // LOG_ENTRIES</h1>
           <p className="text-gray-600 text-sm mt-1">RESEARCH_LOG_STATUS: OPERATIONAL</p>
         </div>
-        <button
-          onClick={handleNewNote}
-          className="retro-btn bg-emerald-500 text-white px-6 py-3 hover:bg-emerald-600"
-        >
-          <Plus className="w-5 h-5" />
-          <span>NEW_ENTRY</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleNewNote}
+            className="retro-btn bg-emerald-500 text-white px-6 py-3 hover:bg-emerald-600"
+          >
+            <Plus className="w-5 h-5" />
+            <span>NEW_ENTRY</span>
+          </button>
+          <button
+            onClick={onOpenSettings}
+            className="retro-btn p-3 bg-white text-gray-800 hover:bg-gray-100"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Notes List or Empty State */}
@@ -1670,6 +1704,7 @@ const AppV2 = () => {
               tasks={tasks.filter(t => !t.isPoc)}
               isLoading={isLoading}
               onOpenTask={handleOpenTask}
+              onOpenSettings={() => setIsSettingsOpen(true)}
               people={people}
             />
           )}
@@ -1679,6 +1714,7 @@ const AppV2 = () => {
               tasks={tasks}
               isLoading={isLoading}
               onOpenTask={handleOpenTask}
+              onOpenSettings={() => setIsSettingsOpen(true)}
               onDeleteTask={handleDeleteTask}
               people={people}
             />
@@ -1689,6 +1725,7 @@ const AppV2 = () => {
               tasks={tasks}
               isLoading={isLoading}
               onOpenTask={handleOpenTask}
+              onOpenSettings={() => setIsSettingsOpen(true)}
               onDeleteTask={handleDeleteTask}
             />
           )}
@@ -1698,6 +1735,7 @@ const AppV2 = () => {
               tasks={tasks}
               notes={notes}
               isLoadingNotes={isLoadingNotes}
+              onOpenSettings={() => setIsSettingsOpen(true)}
               onAddNote={addNote}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}
@@ -1712,11 +1750,17 @@ const AppV2 = () => {
               className="pb-24 h-full flex flex-col pointer-events-auto"
             >
               {/* Compact Header */}
-              <div className="flex items-center justify-between px-2 pr-16 mb-3 shrink-0">
+              <div className="flex items-center justify-between px-2 mb-3 shrink-0">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900 tracking-tighter uppercase">TIMELINE // CALENDAR_VIEW</h1>
                   <p className="text-gray-600 text-xs mt-0.5">DUAL_CALENDAR_SYNC_STATUS: OPERATIONAL</p>
                 </div>
+                <button
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="retro-btn p-3 bg-white text-gray-800 hover:bg-gray-100"
+                >
+                  <Settings className="w-5 h-5" />
+                </button>
               </div>
 
               {/* Calendar Component - Full Screen */}
@@ -1729,16 +1773,6 @@ const AppV2 = () => {
       </div>
 
       <NavigationIsland activeView={activeView} onChangeView={setActiveView} />
-
-      {/* 設定按鈕 - Fixed 右上角 */}
-      {!isSettingsOpen && (
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="retro-btn fixed top-6 right-12 z-50 p-3 bg-white text-gray-800 hover:bg-gray-100"
-        >
-          <Settings className="w-6 h-6" />
-        </button>
-      )}
 
       {/* 設定面板 */}
       <AnimatePresence>
