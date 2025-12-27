@@ -8,7 +8,7 @@ import { useNotes, LearningNote } from './hooks/useNotes';
 import { usePeople } from './hooks/usePeople';
 import { useChangelog, ChangelogEntry } from './hooks/useChangelog';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle, Settings, FileCode } from 'lucide-react';
+import { Plus, Search, Calendar as CalendarIcon, BarChart3, List, Loader2, FlaskConical, Link as LinkIcon, BookOpen, X, Save, FileText, Trash2, Check, ChevronDown, Upload, Image as ImageIcon, PlayCircle, CheckCircle, Settings, FileCode, Copy } from 'lucide-react';
 import { Task, TaskCategory, Material } from './types';
 
 // Retro Panel Component
@@ -35,6 +35,90 @@ const getColorForCategory = (category: string) => {
 // 圓餅圖的顏色 - 淺色通透感
 const PIE_COLORS = ['#7dd3fc', '#fda4af', '#c4b5fd', '#6ee7b7', '#fcd34d', '#cbd5e1']; // Sky, Rose, Violet, Emerald, Amber, Slate (300 系列)
 
+// 狀態中文映射
+const STATUS_LABELS: Record<string, string> = {
+  'pending': '待處理',
+  'in-progress': '進行中',
+  'completed': '已完成',
+  'unpublished': '未發布',
+  'blocked': '受阻',
+};
+
+// 優先級中文映射
+const PRIORITY_LABELS: Record<string, string> = {
+  'urgent': '緊急',
+  'high': '高',
+  'medium': '中',
+  'low': '低',
+};
+
+// 將任務陣列格式化為 Markdown
+const formatTasksAsMarkdown = (tasks: Task[]): string => {
+  if (tasks.length === 0) return '# 任務清單\n\n（無任務）';
+
+  const lines: string[] = [`# 任務清單 (共 ${tasks.length} 項)\n`];
+
+  tasks.forEach((task, index) => {
+    const status = STATUS_LABELS[task.status] || task.status;
+    lines.push(`## ${index + 1}. [${status}] ${task.name || '未命名任務'}`);
+
+    // 基本資訊
+    if (task.owner) lines.push(`- **負責人**: ${task.owner}`);
+    lines.push(`- **類別**: ${task.category}`);
+    if (task.priority) lines.push(`- **優先級**: ${PRIORITY_LABELS[task.priority] || task.priority}`);
+    lines.push(`- **進度**: ${task.progress}%`);
+    if (task.startDate || task.endDate) {
+      const start = task.startDate ? new Date(task.startDate).toLocaleDateString('zh-TW') : '-';
+      const end = task.endDate ? new Date(task.endDate).toLocaleDateString('zh-TW') : '-';
+      lines.push(`- **期間**: ${start} ~ ${end}`);
+    }
+    if (task.collaborationType) {
+      lines.push(`- **合作類型**: ${task.collaborationType === 'solo' ? '獨立' : '團隊'}`);
+    }
+
+    // 描述
+    if (task.description) {
+      lines.push(`\n### 描述\n${task.description}`);
+    }
+
+    // 備註
+    if (task.comments && task.comments.length > 0) {
+      lines.push(`\n### 備註 (${task.comments.length})`);
+      task.comments.forEach(comment => {
+        const date = new Date(comment.createdAt).toLocaleDateString('zh-TW');
+        lines.push(`- **${comment.author}** (${date}): ${comment.content}`);
+      });
+    }
+
+    // 版本記錄
+    if (task.changelog && task.changelog.length > 0) {
+      lines.push(`\n### 版本記錄`);
+      task.changelog.forEach(log => {
+        const date = new Date(log.createdAt).toLocaleDateString('zh-TW');
+        lines.push(`- v${log.version} (${date}): ${log.content} - by ${log.author}`);
+      });
+    }
+
+    // 附件
+    if (task.materials && task.materials.length > 0) {
+      lines.push(`\n### 附件 (${task.materials.length})`);
+      task.materials.forEach(material => {
+        if (material.type === 'link' && material.url) {
+          lines.push(`- [${material.name}](${material.url})`);
+        } else if (material.type === 'note' && material.note) {
+          lines.push(`- 📝 ${material.name}: ${material.note}`);
+        } else {
+          lines.push(`- ${material.name} (${material.type})`);
+        }
+      });
+    }
+
+    lines.push(''); // 空行分隔任務
+  });
+
+  return lines.join('\n');
+};
+
 interface DeliveryViewProps {
   tasks: Task[];
   isLoading: boolean;
@@ -51,6 +135,7 @@ const filterTasksByOwner = (tasks: Task[], filter: string) => {
 const DeliveryView = ({ tasks, isLoading, onOpenTask, onOpenSettings, people }: DeliveryViewProps) => {
   const [viewMode, setViewMode] = useState<'gantt' | 'list' | 'changelog'>('gantt');
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  const [isCopied, setIsCopied] = useState(false);
   const { changelog, isLoading: isLoadingChangelog, addEntry, deleteEntry } = useChangelog();
 
   // Changelog 新增表單狀態
@@ -133,6 +218,14 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, onOpenSettings, people }: 
     });
   }, [stats]);
 
+  // 複製任務到剪貼簿
+  const handleCopyTasks = async () => {
+    const markdown = formatTasksAsMarkdown(filteredTasks);
+    await navigator.clipboard.writeText(markdown);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -181,6 +274,13 @@ const DeliveryView = ({ tasks, isLoading, onOpenTask, onOpenSettings, people }: 
            >
              <Plus className="w-5 h-5" />
              <span>NEW_TASK</span>
+           </button>
+           <button
+             onClick={handleCopyTasks}
+             className={`retro-btn p-3 ${isCopied ? 'bg-emerald-500 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
+             title="複製任務到剪貼簿"
+           >
+             {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
            </button>
            <button
              onClick={onOpenSettings}
@@ -577,6 +677,8 @@ interface PocViewProps {
 }
 
 const PocView = ({ tasks, isLoading, onOpenTask, onOpenSettings, onDeleteTask }: PocViewProps) => {
+  const [isCopied, setIsCopied] = useState(false);
+
   // 只顯示 POC 任務（isPoc = true）
   const pocTasks = useMemo(() => tasks.filter(t => t.isPoc), [tasks]);
 
@@ -596,6 +698,14 @@ const PocView = ({ tasks, isLoading, onOpenTask, onOpenSettings, onDeleteTask }:
       stakeholders: [],
     };
     onOpenTask(newPoc as Task);
+  };
+
+  // 複製任務到剪貼簿
+  const handleCopyTasks = async () => {
+    const markdown = formatTasksAsMarkdown(pocTasks);
+    await navigator.clipboard.writeText(markdown);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   return (
@@ -618,6 +728,13 @@ const PocView = ({ tasks, isLoading, onOpenTask, onOpenSettings, onDeleteTask }:
           >
             <Plus className="w-5 h-5" />
             <span>NEW_PROTOCOL</span>
+          </button>
+          <button
+            onClick={handleCopyTasks}
+            className={`retro-btn p-3 ${isCopied ? 'bg-emerald-500 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
+            title="複製任務到剪貼簿"
+          >
+            {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           </button>
           <button
             onClick={onOpenSettings}
@@ -767,6 +884,7 @@ interface CompletedProjectsViewProps {
 
 const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onOpenSettings, onDeleteTask, people }: CompletedProjectsViewProps) => {
   const [ownerFilter, setOwnerFilter] = useState<string>('all');
+  const [isCopied, setIsCopied] = useState(false);
 
   // 所有已完成的非 POC 任務
   const allCompletedTasks = useMemo(() =>
@@ -812,6 +930,14 @@ const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onOpenSettings, o
     onOpenTask(newTask as Task);
   };
 
+  // 複製任務到剪貼簿
+  const handleCopyTasks = async () => {
+    const markdown = formatTasksAsMarkdown(completedTasks);
+    await navigator.clipboard.writeText(markdown);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -832,6 +958,13 @@ const CompletedProjectsView = ({ tasks, isLoading, onOpenTask, onOpenSettings, o
           >
             <Plus className="w-5 h-5" />
             <span>ADD_ENTRY</span>
+          </button>
+          <button
+            onClick={handleCopyTasks}
+            className={`retro-btn p-3 ${isCopied ? 'bg-emerald-500 text-white' : 'bg-white text-gray-800 hover:bg-gray-100'}`}
+            title="複製任務到剪貼簿"
+          >
+            {isCopied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
           </button>
           <button
             onClick={onOpenSettings}
